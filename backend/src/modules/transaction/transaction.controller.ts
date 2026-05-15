@@ -18,7 +18,7 @@ export class TransactionController {
     try {
       const orgId = req.user!.orgId;
       const { id } = req.params;
-      const transaction = await this.service.updateTransaction(id, orgId, req.body);
+      const transaction = await this.service.updateTransaction(id as string, orgId, req.body);
       res.status(200).json({ success: true, data: transaction });
     } catch (error) {
       next(error);
@@ -29,7 +29,7 @@ export class TransactionController {
     try {
       const orgId = req.user!.orgId;
       const { id } = req.params;
-      await this.service.deleteTransaction(id, orgId);
+      await this.service.deleteTransaction(id as string, orgId);
       res.status(200).json({ success: true, message: 'Transaction deleted successfully' });
     } catch (error) {
       next(error);
@@ -40,7 +40,7 @@ export class TransactionController {
     try {
       const orgId = req.user!.orgId;
       const { id } = req.params;
-      const transaction = await this.service.getTransactionById(id, orgId);
+      const transaction = await this.service.getTransactionById(id as string, orgId);
       res.status(200).json({ success: true, data: transaction });
     } catch (error) {
       next(error);

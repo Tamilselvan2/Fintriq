@@ -25,7 +25,7 @@ export class OrganizationController {
 
   updateRole = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const member = await this.service.updateMemberRole(req.params.id, req.user!.orgId, req.body.role);
+      const member = await this.service.updateMemberRole(req.params.id as string, req.user!.orgId, req.body.role);
       res.json({ success: true, data: member, message: 'Role updated successfully' });
     } catch (error) { 
       next(error); 
@@ -34,7 +34,7 @@ export class OrganizationController {
 
   removeMember = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await this.service.removeMember(req.params.id, req.user!.orgId, req.user!.userId);
+      await this.service.removeMember(req.params.id as string, req.user!.orgId, req.user!.userId);
       res.json({ success: true, message: 'Member removed successfully' });
     } catch (error) { 
       next(error); 
