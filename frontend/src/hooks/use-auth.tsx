@@ -51,7 +51,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const { accessToken, user } = await authApi.login(data);
     setAccessToken(accessToken);
     setUser(user);
-    router.push('/dashboard');
+    // Use hard redirect to ensure cookies and state are properly initialized
+    window.location.href = '/dashboard';
   };
 
   const logout = async () => {
