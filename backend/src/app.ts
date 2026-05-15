@@ -7,6 +7,7 @@ import authRoutes from './modules/auth/auth.routes';
 import transactionRoutes from './modules/transaction/transaction.routes';
 import dashboardRoutes from './modules/dashboard/dashboard.routes';
 import organizationRoutes from './modules/organization/organization.routes';
+import auditRoutes from './modules/audit/audit.routes';
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/organizations', organizationRoutes);
+app.use('/api/audit', auditRoutes);
 
 // Error Handling Middleware
 app.use(errorHandler);

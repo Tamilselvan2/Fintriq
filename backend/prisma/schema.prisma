@@ -26,6 +26,7 @@ model Organization {
   updatedAt    DateTime      @updatedAt
   users        User[]
   transactions Transaction[]
+  auditLogs    AuditLog[]
 }
 
 model Transaction {
@@ -54,6 +55,7 @@ model User {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   refreshTokens RefreshToken[]
+  auditLogs    AuditLog[]
 
   @@index([orgId])
 }
@@ -68,4 +70,23 @@ model RefreshToken {
   createdAt   DateTime @default(now())
 
   @@index([userId])
+}
+
+model AuditLog {
+  id           String       @id @default(uuid())
+  orgId        String
+  userId       String
+  userEmail    String
+  action       String       // e.g. CREATE_TRANSACTION, UPDATE_TRANSACTION, DELETE_TRANSACTION
+  entityType   String       // e.g. TRANSACTION, USER
+  entityId     String?
+  details      Json?        // Snapshot of what changed
+  ipAddress    String?
+  createdAt    DateTime     @default(now())
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([orgId, createdAt])
 }

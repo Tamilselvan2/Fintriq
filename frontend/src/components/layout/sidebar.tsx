@@ -2,21 +2,22 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Receipt, Menu, X, Users } from 'lucide-react';
+import { LayoutDashboard, Receipt, Menu, X, Users, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
 import { useState } from 'react';
 import { LogoutButton } from '../auth/logout-button';
 
 const navItems = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Transactions', href: '/transactions', icon: Receipt },
-  { name: 'Team', href: '/team', icon: Users },
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, adminOnly: false },
+  { name: 'Transactions', href: '/transactions', icon: Receipt, adminOnly: false },
+  { name: 'Team', href: '/team', icon: Users, adminOnly: false },
+  { name: 'Audit Log', href: '/audit', icon: ShieldCheck, adminOnly: true },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
   const sidebarContent = (
@@ -34,7 +35,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
-        {navItems.map((item) => {
+        {navItems.filter(item => !item.adminOnly || isAdmin).map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (
             <Link

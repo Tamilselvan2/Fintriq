@@ -32,6 +32,7 @@ export class AuthService {
 
     const payload: JwtPayload = {
       userId: user.id,
+      email: user.email,
       orgId: user.orgId,
       role: user.role,
     };
@@ -72,6 +73,7 @@ export class AuthService {
 
       const payload: JwtPayload = {
         userId: dbToken.user.id,
+        email: dbToken.user.email,
         orgId: dbToken.user.orgId,
         role: dbToken.user.role,
       };

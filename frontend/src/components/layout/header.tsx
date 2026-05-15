@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/hooks/use-auth';
 import { usePathname } from 'next/navigation';
-import { Bell, User as UserIcon } from 'lucide-react';
+import { User as UserIcon } from 'lucide-react';
 
 export function Header() {
   const pathname = usePathname();
@@ -16,11 +16,7 @@ export function Header() {
       <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">{displayTitle}</h1>
       
       <div className="flex items-center gap-5">
-        <button className="p-2.5 rounded-full text-slate-500 hover:bg-white dark:hover:bg-slate-800 hover:shadow-sm border border-transparent hover:border-border transition-all relative">
-          <Bell size={20} />
-          <span className="absolute top-2 right-2 w-2 h-2 bg-brand-rose rounded-full border border-white dark:border-slate-900"></span>
-        </button>
-        
+
         <div className="flex items-center gap-3 pl-5 border-l border-border h-10">
           <div className="hidden sm:block text-right">
             <p className="text-sm font-bold text-slate-800 dark:text-slate-200 leading-none">{user?.email.split('@')[0]}</p>
