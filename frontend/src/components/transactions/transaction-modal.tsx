@@ -17,7 +17,7 @@ interface TransactionModalProps {
 
 export function TransactionModal({ isOpen, onOpenChange, transaction }: TransactionModalProps) {
   const isEditMode = !!transaction;
-  
+
   const createMutation = useCreateTransaction();
   const updateMutation = useUpdateTransaction();
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
@@ -44,16 +44,29 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
 
   const onSubmit = async (data: TransactionInput) => {
     try {
+      const formattedData = {
+        ...data,
+        type: data.type as Transaction['type'],
+      };
+
       if (isEditMode && transaction) {
-        await updateMutation.mutateAsync({ id: transaction.id, data });
+        await updateMutation.mutateAsync({
+          id: transaction.id,
+          data: formattedData,
+        });
+
         toast.success('Transaction updated successfully');
       } else {
-        await createMutation.mutateAsync(data);
+        await createMutation.mutateAsync(formattedData);
+
         toast.success('Transaction created successfully');
       }
+
       onOpenChange(false);
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to save transaction');
+      toast.error(
+        error.response?.data?.message || 'Failed to save transaction'
+      );
     }
   };
 
@@ -68,7 +81,7 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
           <div className="grid grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Type</label>
-              <select 
+              <select
                 {...register('type')}
                 className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-blue/50"
               >
@@ -77,10 +90,10 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
               </select>
               {errors.type && <p className="text-brand-rose text-xs mt-1.5 font-medium">{errors.type.message}</p>}
             </div>
-            
+
             <div>
               <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Amount ($)</label>
-              <input 
+              <input
                 type="number"
                 step="0.01"
                 {...register('amount', { valueAsNumber: true })}
@@ -93,7 +106,7 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
 
           <div>
             <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Category</label>
-            <input 
+            <input
               type="text"
               placeholder="e.g. Software, Payroll, Travel"
               {...register('category')}
@@ -104,7 +117,7 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
 
           <div>
             <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Description <span className="text-slate-400 font-normal">(Optional)</span></label>
-            <textarea 
+            <textarea
               {...register('description')}
               rows={3}
               placeholder="Add details about this transaction..."
@@ -113,14 +126,14 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <button 
+            <button
               type="button"
               onClick={() => onOpenChange(false)}
               className="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 dark:text-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors"
             >
               Cancel
             </button>
-            <button 
+            <button
               type="submit"
               disabled={isSubmitting}
               className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-brand-blue hover:bg-blue-600 transition-colors disabled:opacity-50 flex items-center gap-2 shadow-sm"

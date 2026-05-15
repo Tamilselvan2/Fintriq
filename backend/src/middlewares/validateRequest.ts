@@ -11,7 +11,7 @@ export const validateRequest = (schema: z.ZodTypeAny) => {
         res.status(400).json({
           success: false,
           message: 'Validation failed',
-          errors: (error as ZodError<any>).errors,
+          errors: (error as ZodError<any>).issues,
         });
       } else {
         next(error);
@@ -31,7 +31,7 @@ export const validateQuery = (schema: z.ZodTypeAny) => {
         res.status(400).json({
           success: false,
           message: 'Query validation failed',
-          errors: (error as ZodError<any>).errors,
+          errors: (error as ZodError<any>).issues,
         });
       } else {
         next(error);
@@ -51,7 +51,7 @@ export const validateParams = (schema: z.ZodTypeAny) => {
         res.status(400).json({
           success: false,
           message: 'Params validation failed',
-          errors: (error as ZodError<any>).errors,
+          errors: (error as ZodError<any>).issues,
         });
       } else {
         next(error);

@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { inviteMemberSchema, InviteMemberInput } from '@/lib/validations/organization';
+import { Role } from '@/types/models';
 import { useInviteMember } from '@/hooks/use-organization';
 import { toast } from 'sonner';
 
@@ -17,7 +18,7 @@ export function InviteMemberModal({ isOpen, onOpenChange }: InviteMemberModalPro
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<InviteMemberInput>({
     resolver: zodResolver(inviteMemberSchema),
-    defaultValues: { email: '', role: 'USER', password: '' }
+    defaultValues: { email: '', role: Role.USER, password: '' }
   });
 
   const onSubmit = async (data: InviteMemberInput) => {
