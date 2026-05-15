@@ -32,7 +32,7 @@ export class TransactionRepository {
 
   async findMany(params: {
     orgId: string;
-    skip: number;
+    cursor?: string;
     take: number;
     type?: TransactionType;
     category?: string;
@@ -41,7 +41,7 @@ export class TransactionRepository {
     sortBy: 'createdAt' | 'amount';
     sortOrder: 'asc' | 'desc';
   }) {
-    const { orgId, skip, take, type, category, startDate, endDate, sortBy, sortOrder } = params;
+    const { orgId, cursor, take, type, category, startDate, endDate, sortBy, sortOrder } = params;
 
     const where: Prisma.TransactionWhereInput = {
       orgId,
@@ -55,16 +55,21 @@ export class TransactionRepository {
       } : {})
     };
 
-    const [items, total] = await prisma.$transaction([
-      prisma.transaction.findMany({
-        where,
-        skip,
-        take,
-        orderBy: { [sortBy]: sortOrder },
-      }),
-      prisma.transaction.count({ where })
-    ]);
+    const items = await prisma.transaction.findMany({
+      where,
+      take: take + 1, // fetch one extra to determine if there is a next page
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+      orderBy: { [sortBy]: sortOrder },
+    });
 
-    return { items, total };
+    let nextCursor: string | null = null;
+    if (items.length > take) {
+      const nextItem = items.pop(); // remove the extra item
+      nextCursor = nextItem!.id;
+    }
+
+    const total = await prisma.transaction.count({ where });
+
+    return { items, total, nextCursor };
   }
 }

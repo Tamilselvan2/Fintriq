@@ -3,25 +3,28 @@ import api from '@/lib/api';
 import { Transaction } from '@/types/models';
 
 interface FetchTransactionsParams {
-  page?: number;
+  cursor?: string;
   limit?: number;
   type?: 'INCOME' | 'EXPENSE' | '';
   category?: string;
+  search?: string;
   startDate?: string;
   endDate?: string;
   sortBy?: 'createdAt' | 'amount';
   sortOrder?: 'asc' | 'desc';
 }
 
-interface TransactionsResponse {
+interface TransactionsMeta {
+  total: number;
+  limit: number;
+  nextCursor: string | null;
+  hasMore: boolean;
+}
+
+export interface TransactionsResponse {
   success: boolean;
   data: Transaction[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+  meta: TransactionsMeta;
 }
 
 export function useTransactions(params: FetchTransactionsParams) {
@@ -34,17 +37,15 @@ export function useTransactions(params: FetchTransactionsParams) {
           searchParams.append(key, String(value));
         }
       });
-      
       const res = await api.get<TransactionsResponse>(`/transactions?${searchParams.toString()}`);
       return res.data;
     },
-    staleTime: 1000 * 60, // 1 minute
+    staleTime: 1000 * 60,
   });
 }
 
 export function useCreateTransaction() {
   const queryClient = useQueryClient();
-  
   return useMutation({
     mutationFn: async (data: Partial<Transaction>) => {
       const res = await api.post('/transactions', data);
@@ -59,7 +60,6 @@ export function useCreateTransaction() {
 
 export function useUpdateTransaction() {
   const queryClient = useQueryClient();
-  
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<Transaction> }) => {
       const res = await api.patch(`/transactions/${id}`, data);
@@ -74,7 +74,6 @@ export function useUpdateTransaction() {
 
 export function useDeleteTransaction() {
   const queryClient = useQueryClient();
-  
   return useMutation({
     mutationFn: async (id: string) => {
       const res = await api.delete(`/transactions/${id}`);

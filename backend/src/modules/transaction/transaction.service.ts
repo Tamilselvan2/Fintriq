@@ -93,7 +93,7 @@ export class TransactionService {
 
   async listTransactions(params: {
     orgId: string;
-    page?: number;
+    cursor?: string;
     limit?: number;
     type?: TransactionType;
     category?: string;
@@ -102,34 +102,19 @@ export class TransactionService {
     sortBy?: 'createdAt' | 'amount';
     sortOrder?: 'asc' | 'desc';
   }) {
-    const page = Number(params.page) || 1;
-
     const limit = Number(params.limit) || 10;
 
-    const skip = (page - 1) * limit;
-
-    const sortBy =
-      params.sortBy === 'amount'
-        ? 'amount'
-        : 'createdAt';
-
-    const sortOrder =
-      params.sortOrder === 'asc'
-        ? 'asc'
-        : 'desc';
+    const sortBy = params.sortBy === 'amount' ? 'amount' : 'createdAt';
+    const sortOrder = params.sortOrder === 'asc' ? 'asc' : 'desc';
 
     const result = await this.repository.findMany({
       orgId: params.orgId,
-      skip,
+      cursor: params.cursor,
       take: limit,
       type: params.type,
       category: params.category,
-      startDate: params.startDate
-        ? new Date(params.startDate)
-        : undefined,
-      endDate: params.endDate
-        ? new Date(params.endDate)
-        : undefined,
+      startDate: params.startDate ? new Date(params.startDate) : undefined,
+      endDate: params.endDate ? new Date(params.endDate) : undefined,
       sortBy,
       sortOrder,
     });
@@ -138,9 +123,9 @@ export class TransactionService {
       data: result.items,
       meta: {
         total: result.total,
-        page,
         limit,
-        totalPages: Math.ceil(result.total / limit),
+        nextCursor: result.nextCursor,
+        hasMore: result.nextCursor !== null,
       },
     };
   }

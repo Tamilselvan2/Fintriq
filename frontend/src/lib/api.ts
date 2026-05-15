@@ -42,6 +42,35 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // --- 429 Rate Limit: show countdown toast ---
+    if (error.response?.status === 429) {
+      const retryAfter = Number(error.response.headers['retry-after']) || 60;
+      let remaining = retryAfter;
+
+      // Use a unique toast ID so we update it instead of stacking toasts
+      const toastId = 'rate-limit';
+      const { toast } = await import('sonner');
+      toast.error(`Too many requests. Please wait ${remaining}s before retrying.`, {
+        id: toastId,
+        duration: retryAfter * 1000,
+      });
+
+      const interval = setInterval(() => {
+        remaining -= 1;
+        if (remaining <= 0) {
+          clearInterval(interval);
+          toast.dismiss(toastId);
+        } else {
+          toast.error(`Too many requests. Please wait ${remaining}s before retrying.`, {
+            id: toastId,
+            duration: remaining * 1000,
+          });
+        }
+      }, 1000);
+
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {

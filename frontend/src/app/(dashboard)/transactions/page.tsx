@@ -3,48 +3,80 @@
 import { RoleGate } from '@/components/auth/role-gate';
 import { Role, Transaction } from '@/types/models';
 import { Plus, Download } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState, Suspense } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useTransactions, useDeleteTransaction } from '@/hooks/use-transactions';
 import { FilterBar } from '@/components/transactions/filter-bar';
 import { TransactionTable } from '@/components/transactions/transaction-table';
-import { PaginationControls } from '@/components/transactions/pagination-controls';
 import { TransactionModal } from '@/components/transactions/transaction-modal';
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 
-export default function TransactionsPage() {
-  const [page, setPage] = useState(1);
-  const [filters, setFilters] = useState<{ search?: string; type?: 'INCOME' | 'EXPENSE' | ''; category?: string }>({});
-  
+function TransactionsPageInner() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // --- Read state from URL ---
+  const cursor = searchParams.get('cursor') || undefined;
+  const type = (searchParams.get('type') as 'INCOME' | 'EXPENSE' | '') || '';
+  const category = searchParams.get('category') || '';
+  const search = searchParams.get('search') || '';
+
+  // cursor history stack for "Previous" navigation
+  const [cursorStack, setCursorStack] = useState<string[]>([]);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
-  
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [deletingTransaction, setDeletingTransaction] = useState<Transaction | null>(null);
 
-  const { data, isLoading } = useTransactions({ 
-    page, 
+  const { data, isLoading } = useTransactions({
+    cursor,
     limit: 10,
-    ...filters
+    type: type || undefined,
+    category: category || undefined,
+    search: search || undefined,
   });
 
   const deleteMutation = useDeleteTransaction();
 
-  const handleCreate = () => {
-    setEditingTransaction(null);
-    setIsModalOpen(true);
+  // --- URL update helpers ---
+  const updateParams = useCallback((updates: Record<string, string | undefined>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    Object.entries(updates).forEach(([k, v]) => {
+      if (v === undefined || v === '') {
+        params.delete(k);
+      } else {
+        params.set(k, v);
+      }
+    });
+    router.push(`${pathname}?${params.toString()}`);
+  }, [searchParams, pathname, router]);
+
+  const handleFilterChange = useCallback((filters: { search?: string; type?: string; category?: string }) => {
+    // reset cursor when filters change
+    setCursorStack([]);
+    updateParams({ ...filters, cursor: undefined });
+  }, [updateParams]);
+
+  const handleNextPage = () => {
+    if (!data?.meta.nextCursor) return;
+    setCursorStack(prev => [...prev, cursor ?? '']);
+    updateParams({ cursor: data.meta.nextCursor! });
   };
 
-  const handleEdit = (t: Transaction) => {
-    setEditingTransaction(t);
-    setIsModalOpen(true);
+  const handlePrevPage = () => {
+    const stack = [...cursorStack];
+    const prevCursor = stack.pop();
+    setCursorStack(stack);
+    updateParams({ cursor: prevCursor || undefined });
   };
 
-  const handleDeleteClick = (t: Transaction) => {
-    setDeletingTransaction(t);
-    setIsConfirmOpen(true);
-  };
+  const handleCreate = () => { setEditingTransaction(null); setIsModalOpen(true); };
+  const handleEdit = (t: Transaction) => { setEditingTransaction(t); setIsModalOpen(true); };
+  const handleDeleteClick = (t: Transaction) => { setDeletingTransaction(t); setIsConfirmOpen(true); };
 
   const confirmDelete = async () => {
     if (!deletingTransaction) return;
@@ -73,6 +105,10 @@ export default function TransactionsPage() {
     }
   };
 
+  const currentPage = cursorStack.length + 1;
+  const hasMore = data?.meta.hasMore ?? false;
+  const hasPrev = cursorStack.length > 0;
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500 pb-10">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
@@ -80,17 +116,16 @@ export default function TransactionsPage() {
           <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Transactions</h2>
           <p className="text-slate-500 mt-1 font-medium">Manage and view all financial records.</p>
         </div>
-        
         <div className="flex items-center gap-3">
           <RoleGate allowedRoles={[Role.ADMIN, Role.ACCOUNTANT]}>
-            <button 
+            <button
               onClick={handleExportCsv}
               className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-border hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-4 py-2.5 rounded-xl font-bold transition-all shadow-sm active:translate-y-px"
             >
               <Download size={18} strokeWidth={2.5} />
               <span>Export CSV</span>
             </button>
-            <button 
+            <button
               onClick={handleCreate}
               className="flex items-center gap-2 bg-gradient-to-r from-brand-blue to-emerald-500 hover:from-blue-600 hover:to-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-md hover:shadow-lg active:translate-y-px"
             >
@@ -101,36 +136,49 @@ export default function TransactionsPage() {
         </div>
       </div>
 
-      <FilterBar 
-        onFilterChange={(f) => {
-          setFilters(f);
-          setPage(1); // Reset to page 1 on filter change
-        }} 
+      <FilterBar
+        initialSearch={search}
+        initialType={type}
+        initialCategory={category}
+        onFilterChange={handleFilterChange}
       />
 
       <div className="bg-white dark:bg-slate-950 border border-border rounded-2xl shadow-sm overflow-hidden flex flex-col">
-        <TransactionTable 
-          transactions={data?.data || []} 
-          isLoading={isLoading} 
+        <TransactionTable
+          transactions={data?.data || []}
+          isLoading={isLoading}
           onEdit={handleEdit}
           onDelete={handleDeleteClick}
         />
-        
-        {!isLoading && data?.meta && (
-          <PaginationControls 
-            page={data.meta.page}
-            totalPages={data.meta.totalPages}
-            total={data.meta.total}
-            onPageChange={setPage}
-          />
+
+        {/* Cursor Pagination Controls */}
+        {!isLoading && (data?.meta.total ?? 0) > 0 && (
+          <div className="flex items-center justify-between px-6 py-4 bg-slate-50 dark:bg-slate-900 border-t border-border rounded-b-2xl">
+            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+              Page <span className="font-bold text-slate-900 dark:text-white">{currentPage}</span>
+              {' '}· <span className="font-bold text-slate-900 dark:text-white">{data?.meta.total ?? 0}</span> total records
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={handlePrevPage}
+                disabled={!hasPrev}
+                className="px-4 py-2 rounded-xl text-sm font-bold bg-white dark:bg-slate-800 border border-border text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                ← Previous
+              </button>
+              <button
+                onClick={handleNextPage}
+                disabled={!hasMore}
+                className="px-4 py-2 rounded-xl text-sm font-bold bg-white dark:bg-slate-800 border border-border text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                Next →
+              </button>
+            </div>
+          </div>
         )}
       </div>
 
-      <TransactionModal 
-        isOpen={isModalOpen} 
-        onOpenChange={setIsModalOpen} 
-        transaction={editingTransaction} 
-      />
+      <TransactionModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} transaction={editingTransaction} />
 
       <ConfirmDialog
         isOpen={isConfirmOpen}
@@ -141,5 +189,13 @@ export default function TransactionsPage() {
         isConfirming={deleteMutation.isPending}
       />
     </div>
+  );
+}
+
+export default function TransactionsPage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-slate-500">Loading...</div>}>
+      <TransactionsPageInner />
+    </Suspense>
   );
 }
