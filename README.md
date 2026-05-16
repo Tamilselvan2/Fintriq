@@ -2,6 +2,11 @@
 
 Fintriq is a multi-tenant financial management SaaS platform built with Next.js, Express, Prisma, and PostgreSQL. The current implementation focuses on tenant-scoped transaction management, dashboard analytics, team access control, and audit visibility in a single full-stack codebase.
 
+## Live Demo
+
+- Frontend: `https://fintriq.vercel.app/`
+- Architecture: [ARCHITECTURE.md](./ARCHITECTURE.md)
+
 ## What Fintriq Includes
 
 - Multi-tenant organization model with backend-enforced `orgId` isolation
@@ -18,7 +23,7 @@ Fintriq is a multi-tenant financial management SaaS platform built with Next.js,
 Browser -> Next.js App Router -> Express API -> Prisma -> PostgreSQL
 ```
 
-Implementation details are documented in [ARCHITECTURE.md](./ARCHITECTURE.md).
+Implementation details, security flows, deployment decisions, and data model design are documented in [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## Tech Stack
 
@@ -72,9 +77,6 @@ PORT=5000
 FRONTEND_URL=http://localhost:3000
 ```
 
-Backend endpoints:
-
-- API base: `http://localhost:5000/api`
 - Health check: `http://localhost:5000/health`
 
 ### Frontend Setup
@@ -136,7 +138,7 @@ Frontend URL:
 
 ## CI/CD
 
-The GitHub Actions workflow in `.github/workflows/ci.yml` runs on pushes to `main` and `master` and currently performs:
+The GitHub Actions workflow in `.github/workflows/ci.yml` runs on pushes to `main` and `master` and performs:
 
 - dependency installation for backend and frontend
 - Prisma client generation
@@ -146,14 +148,13 @@ The GitHub Actions workflow in `.github/workflows/ci.yml` runs on pushes to `mai
 - frontend lint, typecheck, and build
 - backend and frontend test script execution
 
-Current note: the workflow shape is production-oriented, but backend linting and both test commands are still scaffolded rather than full quality gates.
-
 ## Deployment
 
-- Frontend: Vercel-compatible Next.js App Router application
-- Backend: Render deployment configuration is included in [render.yaml](./render.yaml)
+- Frontend: deployed on Vercel at `https://fintriq.vercel.app/`
+- Backend: deployed on Render using [render.yaml](./render.yaml)
 - Database: PostgreSQL through Prisma using `DATABASE_URL` and `DIRECT_URL`
 - Production auth: secure cross-site cookie handling plus CORS restricted by `FRONTEND_URL`
+- Frontend runtime configuration: `NEXT_PUBLIC_API_URL` points to the backend origin and is normalized by the shared Axios client
 
 ## Current Status
 
