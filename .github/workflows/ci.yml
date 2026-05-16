@@ -27,6 +27,15 @@ jobs:
     - name: Install Backend Dependencies
       working-directory: ./backend
       run: npm ci
+
+- name: Debug DATABASE_URL
+  run: |
+    if [ -z "$DATABASE_URL" ]; then
+      echo "DATABASE_URL is EMPTY"
+      exit 1
+    else
+      echo "DATABASE_URL is PRESENT"
+    fi    
       
     - name: Generate Prisma Client
       working-directory: ./backend
