@@ -8,7 +8,7 @@ export class AuthController {
     try {
       const { orgName, email, password } = req.body;
       const result = await this.authService.register(orgName, email, password);
-      
+
       res.status(201).json({
         success: true,
         data: result,
@@ -27,7 +27,7 @@ export class AuthController {
         httpOnly: true,
         secure: true,
         sameSite: 'none',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 24 * 60 * 60 * 1000,
       });
 
 
@@ -56,7 +56,7 @@ export class AuthController {
         httpOnly: true,
         secure: true,
         sameSite: 'none',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 24 * 60 * 60 * 1000,
       });
 
 
@@ -76,7 +76,7 @@ export class AuthController {
       if (refreshToken) {
         await this.authService.logout(refreshToken);
       }
-      
+
       res.clearCookie('refreshToken');
       res.status(200).json({
         success: true,
