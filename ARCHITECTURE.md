@@ -719,18 +719,22 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [ "master", "main" ]
+  pull_request:
+    branches: [ "master", "main" ]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}      
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}         
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Use Node.js 20.x
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
@@ -743,38 +747,37 @@ jobs:
         working-directory: ./backend
         run: npm ci
 
-      - name: Debug DATABASE_URL
-        run: |
-          if [ -z "$DATABASE_URL" ]; then
-            echo "DATABASE_URL is EMPTY"
-            exit 1
-          else
-            echo "DATABASE_URL is PRESENT"
-          fi
-
       - name: Generate Prisma Client
         working-directory: ./backend
         run: npx prisma generate
 
       - name: Validate Prisma Schema
         working-directory: ./backend
+        env:
+          DATABASE_URL: ${{ secrets.DIRECT_URL }}    
         run: npx prisma validate
 
       - name: Check Prisma Migrations
         working-directory: ./backend
-        run: npx prisma migrate status --schema prisma/schema.prisma
+        env:
+          DATABASE_URL: ${{ secrets.DIRECT_URL }}    
+        run: npx prisma migrate status
 
       - name: Lint Backend
         working-directory: ./backend
         run: npm run lint
 
+      - name: Typecheck Backend
+        working-directory: ./backend
+        run: npm run typecheck
+
       - name: Build Backend
         working-directory: ./backend
         run: npm run build
 
-      - name: Typecheck Backend
+      - name: Run Backend Tests
         working-directory: ./backend
-        run: npm run typecheck
+        run: npm test
 
       - name: Install Frontend Dependencies
         working-directory: ./frontend
@@ -791,10 +794,6 @@ jobs:
       - name: Build Frontend
         working-directory: ./frontend
         run: npm run build
-
-      - name: Run Backend Tests
-        working-directory: ./backend
-        run: npm test
 
       - name: Run Frontend Tests
         working-directory: ./frontend
