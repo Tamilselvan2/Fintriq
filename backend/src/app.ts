@@ -12,6 +12,7 @@ import organizationRoutes from './modules/organization/organization.routes';
 import auditRoutes from './modules/audit/audit.routes';
 
 const app = express();
+const API_VERSION = process.env.npm_package_version || '1.0.0';
 
 const createRateLimitHandler = (message: string) => (req: express.Request, res: express.Response) => {
   res.status(429).json({ success: false, message });
@@ -52,6 +53,26 @@ app.use(cookieParser());
 
 // Rate limiting
 app.use('/api', apiLimiter);
+
+app.get('/api', (req, res) => {
+  res.status(200).json({
+    success: true,
+    data: {
+      name: 'Fintriq API',
+      version: API_VERSION,
+      status: 'reachable',
+      timestamp: new Date().toISOString(),
+      health: '/health',
+      routeGroups: {
+        auth: '/api/auth',
+        transactions: '/api/transactions',
+        dashboard: '/api/dashboard',
+        organizations: '/api/organizations',
+        audit: '/api/audit',
+      },
+    },
+  });
+});
 
 app.get('/health', async (req, res) => {
   try {
