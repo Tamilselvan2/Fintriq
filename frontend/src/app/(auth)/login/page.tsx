@@ -38,7 +38,7 @@ export default function LoginPage() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
         </div>
-        <h1 className="text-4xl font-black text-white tracking-tight mb-3">Welcome back</h1>
+        <h1 className="text-4xl font-black text-white tracking-tight mb-3">Welcome back to Fintriq</h1>
         <p className="text-[#94a3b8] font-bold text-sm uppercase tracking-widest opacity-80">Financial clarity for modern teams</p>
       </div>
 
