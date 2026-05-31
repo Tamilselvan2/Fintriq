@@ -31,15 +31,26 @@ const apiLimiter = rateLimit({
 app.use(helmet());
 app.use(cors({
   origin: (origin, callback) => {
+    // If no origin (e.g., server-to-server or Postman), allow it
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    const configuredOrigin = process.env.FRONTEND_URL || 'http://localhost:3000';
+    // Remove trailing slash if present for comparison
+    const normalizedConfiguredOrigin = configuredOrigin.replace(/\/$/, '');
+    const normalizedOrigin = origin.replace(/\/$/, '');
+
     const allowed = [
-      process.env.FRONTEND_URL || 'http://localhost:3000',
+      normalizedConfiguredOrigin,
       'http://localhost:3000',
       'http://localhost:3001',
     ];
-    if (!origin || allowed.includes(origin)) {
+
+    if (allowed.includes(normalizedOrigin)) {
       callback(null, true);
     } else {
-      callback(new Error(`CORS: origin ${origin} not allowed`));
+      callback(null, false);
     }
   },
   credentials: true,
