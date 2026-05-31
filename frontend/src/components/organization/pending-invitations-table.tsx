@@ -1,15 +1,13 @@
 import { useState } from 'react';
-import { usePendingInvitations, useResendInvitation, useCancelInvitation } from '@/hooks/use-organization';
-import { Mail, Trash2, Send, Clock, Shield, Loader2 } from 'lucide-react';
+import { usePendingInvitations, useResendInvitation } from '@/hooks/use-organization';
+import { Mail, Send, Clock, Shield, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function PendingInvitationsTable() {
   const { data: invitations = [], isLoading } = usePendingInvitations();
   const resendMutation = useResendInvitation();
-  const cancelMutation = useCancelInvitation();
 
   const [resendingId, setResendingId] = useState<string | null>(null);
-  const [cancelingId, setCancelingId] = useState<string | null>(null);
 
   if (isLoading) {
     return <div className="p-10 text-center text-slate-500">Loading pending invitations...</div>;
@@ -28,19 +26,6 @@ export function PendingInvitationsTable() {
       toast.error(error.response?.data?.message || 'Failed to resend invitation');
     } finally {
       setResendingId(null);
-    }
-  };
-
-  const handleCancel = async (id: string) => {
-    if (!confirm('Are you sure you want to cancel this invitation?')) return;
-    setCancelingId(id);
-    try {
-      await cancelMutation.mutateAsync(id);
-      toast.success('Invitation canceled');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to cancel invitation');
-    } finally {
-      setCancelingId(null);
     }
   };
 
@@ -106,24 +91,6 @@ export function PendingInvitationsTable() {
                           <>
                             <Send size={16} />
                             Resend
-                          </>
-                        )}
-                      </button>
-                      <button
-                        onClick={() => handleCancel(invitation.id)}
-                        disabled={cancelingId === invitation.id}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        title="Cancel Invitation"
-                      >
-                        {cancelingId === invitation.id ? (
-                          <>
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            Deleting...
-                          </>
-                        ) : (
-                          <>
-                            <Trash2 size={16} />
-                            Cancel
                           </>
                         )}
                       </button>

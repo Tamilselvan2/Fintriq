@@ -121,15 +121,3 @@ export function useResendInvitation() {
   });
 }
 
-export function useCancelInvitation() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const res = await api.delete(`/organizations/invitations/${id}`);
-      return res.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pending-invitations'] });
-    },
-  });
-}

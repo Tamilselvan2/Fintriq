@@ -1,33 +1,33 @@
 import nodemailer from 'nodemailer';
 import logger from './logger';
+const createIPv4Transporter = async () => {
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  // Manually resolve IPv4 using OS-level lookup (getaddrinfo) to bypass UDP DNS blocks on Render
+  const { lookup } = require('dns').promises;
+  const { address: ipv4 } = await lookup(host, { family: 4 });
 
-
-
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-  family: 4,
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
-} as any);
-
-transporter.verify().then(() => {
-  console.log("SMTP verified");
-
-}).catch(error => {
-  console.error("SMTP verify error:", error);
-});
+  return nodemailer.createTransport({
+    host: ipv4,
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: process.env.SMTP_PORT === '465',
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+    tls: {
+      servername: host, // Critical: must pass original hostname for TLS certificate verification
+    },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
+  });
+};
 
 export const sendEmail = async (to: string, subject: string, text: string, html: string) => {
   const fromEmail = process.env.EMAIL_FROM || 'support@fintriq.com';
 
   try {
+    const transporter = await createIPv4Transporter();
     const startTime = Date.now();
     logger.info(`[TRACE] Before sendMail() to ${to}`);
 
