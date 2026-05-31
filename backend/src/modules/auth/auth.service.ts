@@ -165,9 +165,11 @@ export class AuthService {
     });
   }
 
-  // Disabled per AUTH STABILIZATION requirements
-  async updateProfile(userId: string, name?: string, email?: string) {
-    throw new AppError(501, 'Profile editing is disabled');
+  // Restricted to name only per recent auth stabilization changes
+  async updateProfile(userId: string, name: string) {
+    const updatedUser = await this.repository.updateProfileName(userId, name);
+    const { passwordHash: _, ...safeUser } = updatedUser;
+    return safeUser;
   }
 
   async changePassword(userId: string, currentPassword: string, newPassword: string) {

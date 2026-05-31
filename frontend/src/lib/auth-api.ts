@@ -25,6 +25,11 @@ export const authApi = {
     return res.data.data.user;
   },
 
+  updateProfile: async (data: { name: string }) => {
+    const res = await api.patch<ApiResponse<{ user: User }>>('/auth/profile', data);
+    return res.data.data.user;
+  },
+
   changePassword: async (data: any) => {
     const res = await api.patch<ApiResponse<null>>('/auth/password', data);
     return res.data;

@@ -128,4 +128,11 @@ export class AuthRepository {
       },
     });
   }
+
+  async updateProfileName(userId: string, name: string) {
+    return prisma.user.update({
+      where: { id: userId },
+      data: { name },
+    });
+  }
 }

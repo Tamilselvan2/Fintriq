@@ -2,7 +2,7 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { AuthController } from './auth.controller';
 import { validateRequest } from '../../middlewares/validateRequest';
-import { loginSchema, registerSchema, changePasswordSchema, forgotPasswordSchema, resetPasswordSchema } from './auth.validation';
+import { loginSchema, registerSchema, changePasswordSchema, forgotPasswordSchema, resetPasswordSchema, updateProfileSchema } from './auth.validation';
 import { authenticate } from '../../middlewares/authMiddleware';
 import { verifyCsrfHeader } from '../../middlewares/csrfMiddleware';
 import { uploadProfileImage } from '../../middlewares/uploadMiddleware';
@@ -23,7 +23,7 @@ router.post('/login', authLimiter, validateRequest(loginSchema), authController.
 router.post('/refresh', verifyCsrfHeader, authController.refresh);
 router.post('/logout', verifyCsrfHeader, authController.logout);
 router.get('/me', authenticate, authController.getMe);
-// router.patch('/profile', authenticate, validateRequest(updateProfileSchema), authController.updateProfile);
+router.patch('/profile', authenticate, validateRequest(updateProfileSchema), authController.updateProfile);
 router.patch('/password', authenticate, validateRequest(changePasswordSchema), authController.changePassword);
 router.post('/profile-picture', authenticate, uploadProfileImage.single('image'), authController.uploadProfilePicture);
 

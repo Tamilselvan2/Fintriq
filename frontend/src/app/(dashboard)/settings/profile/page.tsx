@@ -1,15 +1,45 @@
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
-import { User, Mail, Shield, Building2, Upload, Loader2 } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { User, Mail, Shield, Building2, Upload, Loader2, Save } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import { authApi } from '@/lib/auth-api';
 import { toast } from 'sonner';
 
 export default function ProfileSettingsPage() {
   const { user, updateUser } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
+  const [isSavingName, setIsSavingName] = useState(false);
+  const [nameInput, setNameInput] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (user?.name) {
+      setNameInput(user.name);
+    }
+  }, [user]);
+
+  const handleSaveName = async () => {
+    if (!nameInput.trim()) {
+      toast.error('Name cannot be empty');
+      return;
+    }
+    if (nameInput.length < 2) {
+      toast.error('Name must be at least 2 characters');
+      return;
+    }
+
+    setIsSavingName(true);
+    try {
+      const updatedUser = await authApi.updateProfile({ name: nameInput.trim() });
+      updateUser(updatedUser);
+      toast.success('Name updated successfully');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to update name');
+    } finally {
+      setIsSavingName(false);
+    }
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -106,13 +136,29 @@ export default function ProfileSettingsPage() {
 
           <div className="h-px bg-border w-full"></div>
 
-          {/* Read-only Details Section */}
+          {/* Details Section */}
           <div className="grid gap-6 sm:grid-cols-2">
-            <div className="space-y-2">
+            <div className="space-y-2 col-span-full sm:col-span-1">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Full Name</label>
-              <div className="flex items-center gap-3 p-3.5 bg-slate-50 dark:bg-slate-900/50 border border-border rounded-xl">
-                <User size={18} className="text-brand-blue" />
-                <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{user.name || 'Not set'}</span>
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <User size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-blue" />
+                  <input
+                    type="text"
+                    value={nameInput}
+                    onChange={(e) => setNameInput(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-900 border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-blue/50 focus:border-brand-blue transition-all text-slate-900 dark:text-slate-100"
+                    placeholder="Enter your name"
+                  />
+                </div>
+                <button
+                  onClick={handleSaveName}
+                  disabled={isSavingName || nameInput.trim() === user.name}
+                  className="px-4 py-3 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap shadow-sm"
+                >
+                  {isSavingName ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  <span className="hidden sm:inline">Save</span>
+                </button>
               </div>
             </div>
 

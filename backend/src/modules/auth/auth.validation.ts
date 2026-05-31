@@ -11,7 +11,9 @@ export const loginSchema = z.object({
   password: z.string(),
 });
 
-
+export const updateProfileSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters').trim(),
+});
 
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'Current password is required'),
