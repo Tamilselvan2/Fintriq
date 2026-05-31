@@ -16,6 +16,7 @@ model Organization {
   auditLogs    AuditLog[]
   transactions Transaction[]
   users        User[]
+  invitations  InvitationToken[]
 }
 
 model Transaction {
@@ -49,6 +50,7 @@ model User {
   refreshTokens       RefreshToken[]
   passwordResetTokens PasswordResetToken[]
   organization        Organization         @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  sentInvitations     InvitationToken[]
 
   @@index([orgId])
 }
@@ -103,5 +105,23 @@ model PasswordResetToken {
   createdAt   DateTime @default(now())
 
   @@index([userId])
+  @@index([expiresAt])
+}
+
+model InvitationToken {
+  id          String   @id @default(uuid())
+  hashedToken String   @unique
+  email       String
+  role        Role
+  orgId       String
+  invitedById String
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  invitedBy    User         @relation(fields: [invitedById], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([email])
   @@index([expiresAt])
 }

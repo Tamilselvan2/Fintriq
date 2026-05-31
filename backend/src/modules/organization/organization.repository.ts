@@ -67,6 +67,51 @@ export class OrganizationRepository {
     });
   }
 
+  async deleteInvitationByEmailAndOrg(email: string, orgId: string) {
+    return prisma.invitationToken.deleteMany({
+      where: { email, orgId },
+    });
+  }
+
+  async createInvitation(email: string, role: Role, orgId: string, invitedById: string, hashedToken: string, expiresAt: Date) {
+    return prisma.invitationToken.create({
+      data: {
+        email,
+        role,
+        orgId,
+        invitedById,
+        hashedToken,
+        expiresAt,
+      },
+    });
+  }
+
+  async getPendingInvitations(orgId: string) {
+    return prisma.invitationToken.findMany({
+      where: { orgId },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        expiresAt: true,
+        createdAt: true,
+      }
+    });
+  }
+
+  async findInvitationById(id: string, orgId: string) {
+    return prisma.invitationToken.findFirst({
+      where: { id, orgId }
+    });
+  }
+
+  async deleteInvitationById(id: string, orgId: string) {
+    return prisma.invitationToken.delete({
+      where: { id }
+    });
+  }
+
   async updateMemberRole(id: string, role: Role) {
     return prisma.user.update({
       where: { id },

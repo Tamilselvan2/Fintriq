@@ -34,6 +34,7 @@ app.use(cors({
     const allowed = [
       process.env.FRONTEND_URL || 'http://localhost:3000',
       'http://localhost:3000',
+      'http://localhost:3001',
     ];
     if (!origin || allowed.includes(origin)) {
       callback(null, true);

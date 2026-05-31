@@ -237,4 +237,45 @@ export class AuthService {
       entityId: user.id,
     });
   }
+
+  async acceptInvitation(rawToken: string, name: string, password: string) {
+    const hashedToken = hashToken(rawToken);
+    const invitation = await this.repository.findInvitationByHashedToken(hashedToken);
+
+    if (!invitation) {
+      throw new AppError(400, 'Invalid or deleted invitation token');
+    }
+
+    if (invitation.expiresAt < new Date()) {
+      throw new AppError(400, 'Invitation token has expired');
+    }
+
+    const { OrganizationRepository } = require('../organization/organization.repository');
+    const orgRepo = new OrganizationRepository();
+    const existing = await orgRepo.findMemberByEmail(invitation.email);
+    if (existing) {
+      throw new AppError(409, 'User with this email already exists');
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    
+    // Create user
+    const newUser = await orgRepo.addMember(invitation.email, passwordHash, invitation.role as any, invitation.orgId);
+    
+    // Update name
+    await this.repository.updateProfileName(newUser.id, name);
+
+    // Delete token
+    await this.repository.deleteInvitation(invitation.id);
+
+    // Audit log
+    auditService.log({
+      orgId: invitation.orgId,
+      userId: newUser.id,
+      userEmail: invitation.email,
+      action: AuditActions.INVITATION_ACCEPTED,
+      entityType: 'USER',
+      entityId: newUser.id,
+    });
+  }
 }

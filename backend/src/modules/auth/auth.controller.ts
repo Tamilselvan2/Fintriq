@@ -152,7 +152,25 @@ export class AuthController {
     try {
       const { token, password } = req.body;
       await this.authService.resetPassword(token, password);
+      
+      const isProduction = process.env.NODE_ENV === 'production';
+      res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+      });
+      
       res.status(200).json({ success: true, message: 'Password reset successfully. Please log in again.' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  acceptInvitation = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { token, name, password } = req.body;
+      await this.authService.acceptInvitation(token, name, password);
+      res.status(200).json({ success: true, message: 'Invitation accepted successfully. You can now log in.' });
     } catch (error) {
       next(error);
     }

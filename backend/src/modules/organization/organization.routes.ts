@@ -52,4 +52,22 @@ router.delete(
   controller.removeMember
 );
 
+router.get(
+  '/invitations/pending',
+  authorize(['ADMIN']),
+  controller.listPendingInvitations
+);
+
+router.post(
+  '/invitations/:id/resend',
+  authorize(['ADMIN']),
+  controller.resendInvitation
+);
+
+router.delete(
+  '/invitations/:id',
+  authorize(['ADMIN']),
+  controller.cancelInvitation
+);
+
 export default router;

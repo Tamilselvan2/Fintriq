@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useMembers } from '@/hooks/use-organization';
 import { TeamTable } from '@/components/organization/team-table';
 import { InviteMemberModal } from '@/components/organization/invite-member-modal';
+import { PendingInvitationsTable } from '@/components/organization/pending-invitations-table';
 
 import { Pagination } from '@/components/shared/pagination';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
@@ -98,6 +99,8 @@ function TeamPageInner() {
           />
         )}
       </div>
+
+      <PendingInvitationsTable />
 
       <InviteMemberModal 
         isOpen={isInviteModalOpen} 

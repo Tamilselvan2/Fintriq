@@ -45,6 +45,11 @@ export const authApi = {
     return res.data;
   },
 
+  acceptInvitation: async (data: { token: string; name: string; password: string }) => {
+    const res = await api.post<ApiResponse<null>>('/auth/accept-invitation', data);
+    return res.data;
+  },
+
   uploadProfilePicture: async (file: File) => {
     const formData = new FormData();
     formData.append('image', file);

@@ -8,11 +8,14 @@ import { authApi } from '@/lib/auth-api';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { useAuth } from '@/hooks/use-auth';
+import { setAccessToken } from '@/lib/api';
 
 function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
+  const { updateUser } = useAuth();
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -33,6 +36,11 @@ function ResetPasswordForm() {
         token,
         password: data.password,
       });
+      
+      // Clear in-memory token and authenticated user state to force re-login
+      setAccessToken(null);
+      updateUser(null);
+      
       setIsSuccess(true);
       toast.success('Password reset successfully');
     } catch (error: any) {

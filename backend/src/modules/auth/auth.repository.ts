@@ -135,4 +135,16 @@ export class AuthRepository {
       data: { name },
     });
   }
+
+  async findInvitationByHashedToken(hashedToken: string) {
+    return prisma.invitationToken.findUnique({
+      where: { hashedToken },
+    });
+  }
+
+  async deleteInvitation(id: string) {
+    return prisma.invitationToken.delete({
+      where: { id },
+    });
+  }
 }

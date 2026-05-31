@@ -88,3 +88,48 @@ export function useRemoveMember() {
     },
   });
 }
+
+export interface PendingInvitation {
+  id: string;
+  email: string;
+  role: Role;
+  expiresAt: string;
+  createdAt: string;
+}
+
+export function usePendingInvitations() {
+  return useQuery({
+    queryKey: ['pending-invitations'],
+    queryFn: async () => {
+      const res = await api.get('/organizations/invitations/pending');
+      return res.data.data as PendingInvitation[];
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useResendInvitation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await api.post(`/organizations/invitations/${id}/resend`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pending-invitations'] });
+    },
+  });
+}
+
+export function useCancelInvitation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await api.delete(`/organizations/invitations/${id}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pending-invitations'] });
+    },
+  });
+}

@@ -18,7 +18,7 @@ export function InviteMemberModal({ isOpen, onOpenChange }: InviteMemberModalPro
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<InviteMemberInput>({
     resolver: zodResolver(inviteMemberSchema),
-    defaultValues: { email: '', role: Role.USER, password: '' }
+    defaultValues: { email: '', role: Role.USER }
   });
 
   const onSubmit = async (data: InviteMemberInput) => {
@@ -64,17 +64,7 @@ export function InviteMemberModal({ isOpen, onOpenChange }: InviteMemberModalPro
             {errors.role && <p className="text-brand-rose text-xs mt-1.5 font-medium">{errors.role.message}</p>}
           </div>
 
-          <div>
-            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Temporary Password</label>
-            <input 
-              type="text"
-              {...register('password')}
-              className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-blue/50 placeholder-slate-400"
-              placeholder="Minimum 8 characters"
-            />
-            {errors.password && <p className="text-brand-rose text-xs mt-1.5 font-medium">{errors.password.message}</p>}
-            <p className="text-xs text-slate-500 font-medium mt-2">Share this temporary password with the user so they can log in.</p>
-          </div>
+
 
           <div className="flex justify-end gap-3 pt-4">
             <button 
