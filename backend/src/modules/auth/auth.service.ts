@@ -84,7 +84,7 @@ export class AuthService {
       const newAccessToken = generateAccessToken(payload);
       const newRefreshTokenString = generateRefreshToken(payload);
       const newHashedToken = hashToken(newRefreshTokenString);
-      
+
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7);
 
@@ -114,7 +114,7 @@ export class AuthService {
     const { passwordHash: _, ...safeUser } = user;
     return safeUser;
   }
-  
+
   // Disabled per AUTH STABILIZATION requirements
   async updateProfile(userId: string, name?: string, email?: string) {
     throw new AppError(501, 'Profile editing is disabled');
@@ -141,9 +141,9 @@ export class AuthService {
 
     const rawToken = crypto.randomBytes(32).toString('hex');
     const hashedToken = hashToken(rawToken);
-    
+
     const expiresAt = new Date();
-    expiresAt.setMinutes(expiresAt.getMinutes() + 15);
+    expiresAt.setMinutes(expiresAt.getMinutes() + 5);
 
     await this.repository.savePasswordResetToken(user.id, hashedToken, expiresAt);
 
@@ -172,7 +172,7 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(newPassword, 12);
     await this.repository.updatePassword(userId, hashedPassword);
-    
+
     await this.repository.revokeAllUserRefreshTokens(userId);
     await this.repository.deletePasswordResetToken(resetToken.id);
 

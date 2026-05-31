@@ -62,7 +62,9 @@ export const AuthProvider = ({
       setUser(null);
 
       const path = window.location.pathname;
-      if (path !== '/login' && path !== '/register') {
+      const publicPaths = ['/login', '/register', '/forgot-password', '/reset-password'];
+      
+      if (!publicPaths.some(p => path.startsWith(p))) {
         router.push('/login');
       }
     };
