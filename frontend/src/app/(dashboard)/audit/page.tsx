@@ -4,7 +4,7 @@ import { Suspense, useState } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useAuditLogs, AuditLog } from '@/hooks/use-audit';
 import { format } from 'date-fns';
-import { ShieldCheck, Plus, Pencil, Trash2, UserPlus } from 'lucide-react';
+import { ShieldCheck, Plus, Pencil, Trash2, UserPlus, Loader2 } from 'lucide-react';
 import { Pagination } from '@/components/shared/pagination';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { AuditLogSkeleton } from '@/components/skeletons/audit-log-skeleton';
@@ -72,7 +72,7 @@ function AuditLogPageInner() {
   const [cursorStack, setCursorStack] = useState<string[]>([]);
   const currentPage = cursorStack.length + 1;
 
-  const { data, isLoading, isError, error } = useAuditLogs({ cursor, limit, action: action || undefined });
+  const { data, isLoading, isFetching, isError, error } = useAuditLogs({ cursor, limit, action: action || undefined });
 
   const updateParams = (updates: Record<string, string | undefined>) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -109,12 +109,22 @@ function AuditLogPageInner() {
       <div className="space-y-6 animate-in fade-in duration-500 pb-10">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <div>
-          <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-            <ShieldCheck className="text-brand-blue" size={28} />
-            Audit Log
-          </h2>
-          <p className="text-slate-500 mt-1 font-medium">Immutable record of all organisation activity.</p>
+        <div className="flex items-center gap-4">
+          <div>
+            <div className="flex items-center gap-3">
+              <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+                <ShieldCheck className="text-brand-blue" size={28} />
+                Audit Log
+              </h2>
+              {isFetching && !isLoading && (
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800/50 px-2.5 py-1 rounded-full animate-in fade-in duration-300">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  Fetching latest logs...
+                </div>
+              )}
+            </div>
+            <p className="text-slate-500 mt-1 font-medium">Immutable record of all organisation activity.</p>
+          </div>
         </div>
 
         {/* Action filter */}
@@ -134,7 +144,7 @@ function AuditLogPageInner() {
       </div>
 
       {/* Table */}
-      <div className="bg-white dark:bg-slate-950 border border-border rounded-2xl shadow-sm overflow-hidden">
+      <div className={`bg-white dark:bg-slate-950 border border-border rounded-2xl shadow-sm overflow-hidden transition-opacity duration-300 ${isFetching && !isLoading ? 'opacity-60 pointer-events-none' : 'opacity-100'}`}>
         {isError ? (
           <div className="px-8 py-16 text-center text-slate-700 dark:text-slate-200">
             <p className="text-lg font-semibold">Unable to load audit logs.</p>

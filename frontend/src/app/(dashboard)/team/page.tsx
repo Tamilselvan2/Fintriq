@@ -2,7 +2,7 @@
 
 import { RoleGate } from '@/components/auth/role-gate';
 import { Role } from '@/types/models';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useMembers } from '@/hooks/use-organization';
 import { TeamTable } from '@/components/organization/team-table';
@@ -28,7 +28,7 @@ function TeamPageInner() {
 
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   
-  const { data, isLoading, isError, error } = useMembers({ cursor, limit });
+  const { data, isLoading, isFetching, isError, error } = useMembers({ cursor, limit });
   const members = data?.data || [];
 
   const updateParams = useCallback((updates: Record<string, string | undefined>) => {
@@ -66,9 +66,19 @@ function TeamPageInner() {
     <ErrorBoundary>
       <div className="space-y-8 animate-in fade-in duration-500 pb-10">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <div>
-          <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Team Management</h2>
-          <p className="text-slate-500 mt-1 font-medium">Manage members, update access roles, and secure your organization.</p>
+        <div className="flex items-center gap-4">
+          <div>
+            <div className="flex items-center gap-3">
+              <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Team Management</h2>
+              {isFetching && !isLoading && (
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800/50 px-2.5 py-1 rounded-full animate-in fade-in duration-300">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  Updating...
+                </div>
+              )}
+            </div>
+            <p className="text-slate-500 mt-1 font-medium">Manage members, update access roles, and secure your organization.</p>
+          </div>
         </div>
         
         <RoleGate allowedRoles={[Role.ADMIN]}>
@@ -82,7 +92,7 @@ function TeamPageInner() {
         </RoleGate>
       </div>
 
-      <div className="bg-white dark:bg-slate-950 border border-border rounded-2xl shadow-sm overflow-hidden flex flex-col">
+      <div className={`bg-white dark:bg-slate-950 border border-border rounded-2xl shadow-sm overflow-hidden flex flex-col transition-opacity duration-300 ${isFetching && !isLoading ? 'opacity-60 pointer-events-none' : 'opacity-100'}`}>
         {isError ? (
           <div className="p-10 text-center text-slate-700 dark:text-slate-200">
             <p className="font-semibold">Unable to load team members.</p>

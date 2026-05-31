@@ -2,7 +2,7 @@
 
 import { RoleGate } from '@/components/auth/role-gate';
 import { Role, Transaction } from '@/types/models';
-import { Plus, Download } from 'lucide-react';
+import { Plus, Download, Loader2 } from 'lucide-react';
 import { useCallback, useState, Suspense } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useTransactions, useDeleteTransaction } from '@/hooks/use-transactions';
@@ -33,7 +33,7 @@ function TransactionsPageInner() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [deletingTransaction, setDeletingTransaction] = useState<Transaction | null>(null);
 
-  const { data, isLoading } = useTransactions({
+  const { data, isLoading, isFetching } = useTransactions({
     cursor,
     limit: 10,
     type: type || undefined,
@@ -117,9 +117,19 @@ function TransactionsPageInner() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500 pb-10">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <div>
-          <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Transactions</h2>
-          <p className="text-slate-500 mt-1 font-medium">Manage and view all financial records.</p>
+        <div className="flex items-center gap-4">
+          <div>
+            <div className="flex items-center gap-3">
+              <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Transactions</h2>
+              {isFetching && !isLoading && (
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800/50 px-2.5 py-1 rounded-full animate-in fade-in duration-300">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  Refreshing...
+                </div>
+              )}
+            </div>
+            <p className="text-slate-500 mt-1 font-medium">Manage and view all financial records.</p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <RoleGate allowedRoles={[Role.ADMIN, Role.ACCOUNTANT]}>
@@ -148,7 +158,7 @@ function TransactionsPageInner() {
         onFilterChange={handleFilterChange}
       />
 
-      <div className="bg-white dark:bg-slate-950 border border-border rounded-2xl shadow-sm overflow-hidden flex flex-col">
+      <div className={`bg-white dark:bg-slate-950 border border-border rounded-2xl shadow-sm overflow-hidden flex flex-col transition-opacity duration-300 ${isFetching && !isLoading ? 'opacity-60 pointer-events-none' : 'opacity-100'}`}>
         <TransactionTable
           transactions={data?.data || []}
           onEdit={handleEdit}

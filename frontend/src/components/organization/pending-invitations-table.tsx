@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { PendingInvitationsSkeleton } from '@/components/skeletons/team-skeleton';
 
 export function PendingInvitationsTable() {
-  const { data: invitations = [], isLoading } = usePendingInvitations();
+  const { data: invitations = [], isLoading, isFetching } = usePendingInvitations();
   const resendMutation = useResendInvitation();
 
   const [resendingId, setResendingId] = useState<string | null>(null);
@@ -32,8 +32,16 @@ export function PendingInvitationsTable() {
 
   return (
     <div className="mt-8">
-      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Pending Invitations</h3>
-      <div className="bg-white dark:bg-slate-950 border border-border rounded-2xl shadow-sm overflow-hidden">
+      <div className="flex items-center gap-3 mb-4">
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white">Pending Invitations</h3>
+        {isFetching && !isLoading && (
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800/50 px-2.5 py-1 rounded-full animate-in fade-in duration-300">
+            <Loader2 className="w-3 h-3 animate-spin" />
+            Updating...
+          </div>
+        )}
+      </div>
+      <div className={`bg-white dark:bg-slate-950 border border-border rounded-2xl shadow-sm overflow-hidden transition-opacity duration-300 ${isFetching && !isLoading ? 'opacity-60 pointer-events-none' : 'opacity-100'}`}>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
