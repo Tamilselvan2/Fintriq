@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
+import cloudinary from '../../config/cloudinary';
 import { AuthRepository } from './auth.repository';
 import { AppError } from '../../utils/errors';
 import { generateAccessToken, generateRefreshToken, hashToken, JwtPayload, verifyRefreshToken } from '../../utils/jwt';
@@ -113,6 +114,55 @@ export class AuthService {
     }
     const { passwordHash: _, ...safeUser } = user;
     return safeUser;
+  }
+
+  async uploadProfilePicture(userId: string, file: Express.Multer.File) {
+    const user = await this.repository.findUserById(userId);
+    if (!user) throw new AppError(404, 'User not found');
+
+    // If the user already has a profile image, delete it from Cloudinary
+    if (user.profileImagePublicId) {
+      try {
+        await cloudinary.uploader.destroy(user.profileImagePublicId);
+      } catch (error) {
+        console.error('Failed to delete old profile picture:', error);
+      }
+    }
+
+    // Upload new image to Cloudinary via stream
+    return new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'fintriq/profile-pictures',
+          transformation: [{ width: 300, height: 300, crop: 'fill' }],
+          format: 'webp',
+        },
+        async (error, result) => {
+          if (error) {
+            return reject(new AppError(500, 'Failed to upload image to Cloudinary'));
+          }
+
+          if (!result) {
+            return reject(new AppError(500, 'No result from Cloudinary'));
+          }
+
+          try {
+            const updatedUser = await this.repository.updateProfileImage(
+              userId,
+              result.secure_url,
+              result.public_id
+            );
+            const { passwordHash: _, ...safeUser } = updatedUser;
+            resolve(safeUser);
+          } catch (dbError) {
+            reject(new AppError(500, 'Failed to update user profile in database'));
+          }
+        }
+      );
+
+      // Pass the file buffer to the stream
+      uploadStream.end(file.buffer);
+    });
   }
 
   // Disabled per AUTH STABILIZATION requirements

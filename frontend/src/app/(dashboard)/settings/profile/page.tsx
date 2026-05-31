@@ -1,10 +1,45 @@
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
-import { User, Mail, Shield, Building2 } from 'lucide-react';
+import { User, Mail, Shield, Building2, Upload, Loader2 } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { authApi } from '@/lib/auth-api';
+import { toast } from 'sonner';
 
 export default function ProfileSettingsPage() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File size must be less than 5MB');
+      return;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Only JPG, PNG and WebP formats are supported');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const updatedUser = await authApi.uploadProfilePicture(file);
+      updateUser(updatedUser);
+      toast.success('Profile picture updated successfully');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to update profile picture');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   if (!user) {
     return (
@@ -28,13 +63,44 @@ export default function ProfileSettingsPage() {
         <div className="p-6 sm:p-8 space-y-8">
           
           {/* Avatar Section */}
-          <div className="flex items-center gap-6">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-brand-blue to-emerald-400 flex items-center justify-center text-white text-3xl font-black shadow-xl ring-4 ring-white dark:ring-slate-900 transition-all">
-              {user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+            <div className="relative group">
+              <div className="w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-black shadow-xl ring-4 ring-white dark:ring-slate-900 transition-all overflow-hidden bg-gradient-to-tr from-brand-blue to-emerald-400">
+                {user.profileImageUrl ? (
+                  <img src={user.profileImageUrl} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()
+                )}
+              </div>
+              
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                className="absolute inset-0 bg-black/50 text-white rounded-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isUploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Upload className="w-6 h-6" />}
+              </button>
             </div>
-            <div>
+            
+            <div className="text-center sm:text-left">
               <h4 className="text-lg font-bold text-slate-900 dark:text-white">{user.name || 'User'}</h4>
-              <p className="text-sm text-slate-500 font-medium">{user.role}</p>
+              <p className="text-sm text-slate-500 font-medium mb-3">{user.role}</p>
+              
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileChange} 
+                accept="image/jpeg, image/png, image/webp" 
+                className="hidden" 
+              />
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                className="text-sm px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+              >
+                {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                {isUploading ? 'Uploading...' : 'Change Picture'}
+              </button>
             </div>
           </div>
 

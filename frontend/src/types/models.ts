@@ -22,6 +22,8 @@ export interface User {
   name?: string;
   role: Role;
   orgId: string;
+  profileImageUrl?: string;
+  profileImagePublicId?: string;
   createdAt: string;
   updatedAt: string;
 }

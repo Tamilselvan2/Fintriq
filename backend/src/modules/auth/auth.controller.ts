@@ -140,4 +140,26 @@ export class AuthController {
       next(error);
     }
   };
+
+  uploadProfilePicture = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user!.userId;
+      const file = req.file;
+      
+      if (!file) {
+        res.status(400).json({ success: false, message: 'No image file provided' });
+        return;
+      }
+
+      const user = await this.authService.uploadProfilePicture(userId, file);
+      
+      res.status(200).json({
+        success: true,
+        message: 'Profile picture updated successfully',
+        data: { user },
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 }

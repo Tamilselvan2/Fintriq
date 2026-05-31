@@ -24,8 +24,14 @@ export function Header() {
             </p>
             <p className="text-[11px] text-brand-blue font-black uppercase tracking-wider mt-1">{user?.role}</p>
           </div>
-          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-blue to-emerald-400 flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white dark:ring-slate-900">
-            {user?.name ? user.name.charAt(0).toUpperCase() : (user?.email.charAt(0).toUpperCase() || <UserIcon size={18} />)}
+          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-blue to-emerald-400 flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white dark:ring-slate-900 overflow-hidden">
+            {user?.profileImageUrl ? (
+              <img src={user.profileImageUrl} alt="Profile" className="w-full h-full object-cover" />
+            ) : user?.name ? (
+              user.name.charAt(0).toUpperCase()
+            ) : (
+              user?.email.charAt(0).toUpperCase() || <UserIcon size={18} />
+            )}
           </div>
         </div>
       </div>

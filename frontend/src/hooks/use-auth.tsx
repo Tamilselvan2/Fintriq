@@ -25,6 +25,7 @@ interface AuthContextType {
   isAdmin: boolean;
   isAccountant: boolean;
   changePassword: (data: any) => Promise<void>;
+  updateUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -169,6 +170,7 @@ export const AuthProvider = ({
         login,
         logout,
         changePassword,
+        updateUser: setUser,
         isAdmin: user?.role === Role.ADMIN,
         isAccountant: user?.role === Role.ACCOUNTANT,
       }}

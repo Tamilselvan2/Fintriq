@@ -38,5 +38,17 @@ export const authApi = {
   resetPassword: async (data: { token: string; password: string }) => {
     const res = await api.post<ApiResponse<null>>('/auth/reset-password', data);
     return res.data;
+  },
+
+  uploadProfilePicture: async (file: File) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    const res = await api.post<ApiResponse<{ user: User }>>('/auth/profile-picture', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return res.data.data.user;
   }
 };

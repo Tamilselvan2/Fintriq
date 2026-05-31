@@ -118,4 +118,14 @@ export class AuthRepository {
       where: { userId },
     });
   }
+
+  async updateProfileImage(userId: string, profileImageUrl: string, profileImagePublicId: string) {
+    return prisma.user.update({
+      where: { id: userId },
+      data: {
+        profileImageUrl,
+        profileImagePublicId,
+      },
+    });
+  }
 }
