@@ -91,12 +91,32 @@ function TransactionsPageInner() {
   };
 
   const handleExportCsv = async () => {
+    if ((data?.meta.total ?? 0) === 0) {
+      toast.error('No transactions available for export');
+      return;
+    }
+
     try {
-      const response = await api.get('/transactions/export', { responseType: 'blob' });
+      const exportParams = new URLSearchParams(searchParams.toString());
+      exportParams.delete('cursor');
+      exportParams.delete('limit');
+
+      const response = await api.get(`/transactions/export?${exportParams.toString()}`, { responseType: 'blob' });
+      
+      let filename = `fintriq-transactions-${new Date().toISOString().split('T')[0]}.csv`;
+      const disposition = response.headers['content-disposition'];
+      if (disposition && disposition.indexOf('attachment') !== -1) {
+        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        const matches = filenameRegex.exec(disposition);
+        if (matches != null && matches[1]) { 
+          filename = matches[1].replace(/['"]/g, '');
+        }
+      }
+
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'transactions.csv');
+      link.setAttribute('download', filename);
       document.body.appendChild(link);
       link.click();
       link.remove();

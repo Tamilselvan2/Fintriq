@@ -110,11 +110,24 @@ export class TransactionController {
 
   exportCsv = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const orgId = req.user!.orgId;
+      const user = req.user as { userId: string; orgId: string; role: Role; email: string };
+      const orgId = user.orgId;
+      
+      const { search, type, category, startDate, endDate } = req.query as any;
+
+      const dateStr = new Date().toISOString().split('T')[0];
+      const filename = `fintriq-transactions-${dateStr}.csv`;
+
       res.setHeader('Content-Type', 'text/csv');
-      res.setHeader('Content-Disposition', 'attachment; filename="transactions.csv"');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
       res.flushHeaders();
-      await this.service.exportTransactionsCsvStream(orgId, res);
+
+      await this.service.exportTransactionsCsvStream(
+        orgId,
+        user.userId,
+        { search, type, category, startDate, endDate },
+        res
+      );
     } catch (error) {
       if (!res.headersSent) {
         res.status(500).json({ success: false, message: 'Unable to export transactions' });
