@@ -7,8 +7,6 @@ The core problem Fintriq solves is enabling small-to-medium teams to collaborati
 ## Live Links
 
 - **Frontend:** https://fintriq.vercel.app
-- **Backend API:** https://tecratech-saas.onrender.com/api
-- **GitHub:** https://github.com/Tamilselvan2/Fintriq
 
 ## Features
 
@@ -100,6 +98,11 @@ JWT_SECRET=your_jwt_secret
 JWT_REFRESH_SECRET=your_jwt_refresh_secret
 PORT=5000
 FRONTEND_URL=http://localhost:3000
+BREVO_API_KEY=email_brevo_api_key
+EMAIL_FROM=email_to_be_shown_in_header
+CLOUDINARY_CLOUD_NAME=cloudinary_cloud_name
+CLOUDINARY_API_KEY=cloudinary_api_key
+CLOUDINARY_API_SECRET=cloudinary_api_secret
 ```
 - API runs on `http://localhost:5000`
 
