@@ -54,7 +54,7 @@ export class AuthRepository {
   }
 
   async findRefreshToken(hashedToken: string) {
-    return prisma.refreshToken.findUnique({
+    return prisma.refreshToken.findFirst({
       where: { hashedToken },
       include: { user: true },
     });
