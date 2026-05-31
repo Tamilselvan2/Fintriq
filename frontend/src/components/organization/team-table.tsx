@@ -11,26 +11,14 @@ import { ShieldAlert, ShieldCheck, User as UserIcon } from 'lucide-react';
 
 interface TeamTableProps {
   members: User[];
-  isLoading: boolean;
 }
 
-export function TeamTable({ members, isLoading }: TeamTableProps) {
+export function TeamTable({ members }: TeamTableProps) {
   const { user: currentUser } = useAuth();
   const updateRoleMutation = useUpdateMemberRole();
   const removeMutation = useRemoveMember();
   
   const [deletingId, setDeletingId] = useState<string | null>(null);
-
-  if (isLoading) {
-    return (
-      <div className="animate-pulse">
-        <div className="h-14 bg-slate-50 dark:bg-slate-900 border-b border-border"></div>
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="h-16 border-b border-border bg-white dark:bg-slate-950"></div>
-        ))}
-      </div>
-    );
-  }
 
   const handleRoleChange = async (id: string, newRole: Role) => {
     try {

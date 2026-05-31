@@ -13,6 +13,7 @@ import { Pagination } from '@/components/shared/pagination';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Suspense, useCallback } from 'react';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
+import { TeamSkeleton } from '@/components/skeletons/team-skeleton';
 
 function TeamPageInner() {
   const router = useRouter();
@@ -57,6 +58,10 @@ function TeamPageInner() {
     updateParams({ limit: newLimit.toString(), cursor: undefined });
   };
 
+  if (isLoading && !data) {
+    return <TeamSkeleton />;
+  }
+
   return (
     <ErrorBoundary>
       <div className="space-y-8 animate-in fade-in duration-500 pb-10">
@@ -84,7 +89,7 @@ function TeamPageInner() {
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{(error as any)?.message || 'Please refresh the page.'}</p>
           </div>
         ) : (
-          <TeamTable members={members} isLoading={isLoading} />
+          <TeamTable members={members} />
         )}
         {!isLoading && !isError && (data?.meta.total ?? 0) > 0 && (
           <Pagination

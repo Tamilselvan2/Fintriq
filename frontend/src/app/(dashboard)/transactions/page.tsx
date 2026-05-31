@@ -12,6 +12,7 @@ import { TransactionModal } from '@/components/transactions/transaction-modal';
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { toast } from 'sonner';
 import api from '@/lib/api';
+import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 
 function TransactionsPageInner() {
   const router = useRouter();
@@ -109,6 +110,10 @@ function TransactionsPageInner() {
   const hasMore = data?.meta.hasMore ?? false;
   const hasPrev = cursorStack.length > 0;
 
+  if (isLoading && !data) {
+    return <TableSkeleton />;
+  }
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500 pb-10">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
@@ -146,7 +151,6 @@ function TransactionsPageInner() {
       <div className="bg-white dark:bg-slate-950 border border-border rounded-2xl shadow-sm overflow-hidden flex flex-col">
         <TransactionTable
           transactions={data?.data || []}
-          isLoading={isLoading}
           onEdit={handleEdit}
           onDelete={handleDeleteClick}
         />

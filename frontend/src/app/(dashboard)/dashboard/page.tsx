@@ -7,6 +7,7 @@ import { CategoryBreakdown } from '@/components/dashboard/category-breakdown';
 import { RecentActivity } from '@/components/dashboard/recent-activity';
 import { Wallet, TrendingUp, TrendingDown, PiggyBank } from 'lucide-react';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
+import { DashboardSkeleton } from '@/components/skeletons/dashboard-skeleton';
 
 export default function DashboardPage() {
   const { data, isLoading, isError, error } = useDashboard();
@@ -21,7 +22,9 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {isError ? (
+      {(isLoading && !data) ? (
+        <DashboardSkeleton />
+      ) : isError ? (
         <div className="bg-card border border-border rounded-3xl p-8 sm:p-12 shadow-sm">
           <h3 className="text-2xl font-bold text-foreground">Dashboard unavailable</h3>
           <p className="mt-3 text-slate-500 dark:text-slate-400">{(error as any)?.message || 'Please refresh the page or try again later.'}</p>

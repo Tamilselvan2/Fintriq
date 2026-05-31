@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { User, Role } from '@/types/models';
 import { ApiResponse } from '@/types/api';
@@ -47,6 +47,7 @@ export function useMembers(params?: MembersQueryParams) {
       return res.data as { data: User[], meta: { total: number, limit: number, nextCursor: string | null, hasMore: boolean } };
     },
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    placeholderData: keepPreviousData,
   });
 }
 

@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import { ShieldCheck, Plus, Pencil, Trash2, UserPlus } from 'lucide-react';
 import { Pagination } from '@/components/shared/pagination';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
+import { AuditLogSkeleton } from '@/components/skeletons/audit-log-skeleton';
 
 const ACTION_LABELS: Record<string, { label: string; icon: JSX.Element; color: string }> = {
   CREATE_TRANSACTION: { label: 'Created Transaction', icon: <Plus size={14} />, color: 'text-brand-emerald bg-brand-emerald/10' },
@@ -99,6 +100,10 @@ function AuditLogPageInner() {
     updateParams({ limit: newLimit.toString(), cursor: undefined });
   };
 
+  if (isLoading && !data) {
+    return <AuditLogSkeleton />;
+  }
+
   return (
     <ErrorBoundary>
       <div className="space-y-6 animate-in fade-in duration-500 pb-10">
@@ -134,12 +139,6 @@ function AuditLogPageInner() {
           <div className="px-8 py-16 text-center text-slate-700 dark:text-slate-200">
             <p className="text-lg font-semibold">Unable to load audit logs.</p>
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{(error as any)?.message || 'Please try again later.'}</p>
-          </div>
-        ) : isLoading ? (
-          <div className="animate-pulse">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="h-16 border-b border-border bg-white dark:bg-slate-950" />
-            ))}
           </div>
         ) : !data?.data.length ? (
           <div className="p-16 text-center bg-white dark:bg-slate-950 flex flex-col items-center justify-center min-h-[400px]">

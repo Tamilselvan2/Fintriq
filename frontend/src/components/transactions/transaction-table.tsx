@@ -10,7 +10,6 @@ import { Role } from '@/types/models';
 
 interface TransactionTableProps {
   transactions: Transaction[];
-  isLoading: boolean;
   onEdit: (t: Transaction) => void;
   onDelete: (t: Transaction) => void;
 }
@@ -20,7 +19,7 @@ interface MenuPosition {
   right: number;
 }
 
-export function TransactionTable({ transactions, isLoading, onEdit, onDelete }: TransactionTableProps) {
+export function TransactionTable({ transactions, onEdit, onDelete }: TransactionTableProps) {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [menuPos, setMenuPos] = useState<MenuPosition>({ top: 0, right: 0 });
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -51,17 +50,6 @@ export function TransactionTable({ transactions, isLoading, onEdit, onDelete }: 
     }
     setOpenMenuId(id);
   };
-
-  if (isLoading) {
-    return (
-      <div className="animate-pulse">
-        <div className="h-14 bg-slate-50 dark:bg-slate-900 border-b border-border"></div>
-        {[...Array(6)].map((_, i) => (
-          <div key={i} className="h-16 border-b border-border bg-white dark:bg-slate-950"></div>
-        ))}
-      </div>
-    );
-  }
 
   if (transactions.length === 0) {
     return (

@@ -5,6 +5,7 @@ import { User, Mail, Shield, Building2, Upload, Loader2, Save } from 'lucide-rea
 import { useState, useRef, useEffect } from 'react';
 import { authApi } from '@/lib/auth-api';
 import { toast } from 'sonner';
+import { ProfileSkeleton } from '@/components/skeletons/profile-skeleton';
 
 export default function ProfileSettingsPage() {
   const { user, updateUser } = useAuth();
@@ -72,12 +73,7 @@ export default function ProfileSettingsPage() {
   };
 
   if (!user) {
-    return (
-      <div className="space-y-6 animate-pulse">
-        <div className="h-8 w-48 bg-slate-200 dark:bg-slate-800 rounded"></div>
-        <div className="h-64 bg-slate-100 dark:bg-slate-900 rounded-xl border border-border"></div>
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   return (

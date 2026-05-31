@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { usePendingInvitations, useResendInvitation } from '@/hooks/use-organization';
 import { Mail, Send, Clock, Shield, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { PendingInvitationsSkeleton } from '@/components/skeletons/team-skeleton';
 
 export function PendingInvitationsTable() {
   const { data: invitations = [], isLoading } = usePendingInvitations();
@@ -9,8 +10,8 @@ export function PendingInvitationsTable() {
 
   const [resendingId, setResendingId] = useState<string | null>(null);
 
-  if (isLoading) {
-    return <div className="p-10 text-center text-slate-500">Loading pending invitations...</div>;
+  if (isLoading && invitations.length === 0) {
+    return <PendingInvitationsSkeleton />;
   }
 
   if (invitations.length === 0) {

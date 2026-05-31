@@ -12,28 +12,6 @@ interface RecentActivityProps {
 }
 
 export function RecentActivity({ transactions, isLoading }: RecentActivityProps) {
-  if (isLoading) {
-    return (
-      <div className="space-y-4 animate-pulse">
-        <div className="flex justify-between items-center mb-6">
-          <div className="w-32 h-6 bg-slate-200 dark:bg-slate-800 rounded"></div>
-          <div className="w-16 h-4 bg-slate-200 dark:bg-slate-800 rounded"></div>
-        </div>
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="flex justify-between items-center p-3">
-            <div className="flex gap-4 items-center">
-              <div className="w-12 h-12 rounded-2xl bg-slate-200 dark:bg-slate-800"></div>
-              <div>
-                <div className="w-24 h-4 bg-slate-200 dark:bg-slate-800 rounded mb-2.5"></div>
-                <div className="w-16 h-3 bg-slate-200 dark:bg-slate-800 rounded"></div>
-              </div>
-            </div>
-            <div className="w-20 h-5 bg-slate-200 dark:bg-slate-800 rounded"></div>
-          </div>
-        ))}
-      </div>
-    );
-  }
 
   if (!transactions || transactions.length === 0) {
     return (

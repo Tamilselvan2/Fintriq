@@ -14,18 +14,6 @@ interface KpiCardProps {
 }
 
 export function KpiCard({ title, value, isCurrency = true, trend, trendVariant = 'positive', isLoading, icon }: KpiCardProps) {
-  if (isLoading) {
-    return (
-      <div className="bg-card p-6 rounded-2xl shadow-sm border border-border animate-pulse">
-        <div className="flex justify-between items-start mb-4">
-          <div className="h-4 w-24 bg-muted rounded"></div>
-          <div className="h-5 w-5 bg-muted rounded"></div>
-        </div>
-        <div className="h-8 w-32 bg-muted rounded mb-2"></div>
-        <div className="h-3 w-16 bg-muted rounded"></div>
-      </div>
-    );
-  }
 
   const isPositive = trend && trend > 0;
   const isNegative = trend && trend < 0;

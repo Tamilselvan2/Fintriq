@@ -11,16 +11,6 @@ interface CategoryBreakdownProps {
 const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#f43f5e', '#8b5cf6', '#06b6d4'];
 
 export function CategoryBreakdown({ data, isLoading }: CategoryBreakdownProps) {
-  if (isLoading) {
-    return (
-      <div className="h-full w-full flex flex-col animate-pulse">
-        <div className="h-6 w-32 bg-slate-200 dark:bg-slate-800 rounded mb-6"></div>
-        <div className="flex-1 flex items-center justify-center">
-          <div className="w-40 h-40 rounded-full border-[12px] border-slate-200 dark:border-slate-800 border-t-brand-blue"></div>
-        </div>
-      </div>
-    );
-  }
 
   if (!data || data.length === 0) {
     return (
