@@ -81,14 +81,33 @@ export class OrganizationService {
       });
     }
 
-    console.log("[TRACE] Before sendMail()");
-    // Send email
-    const { sendInvitationEmail } = require('../../utils/email');
-    await sendInvitationEmail(email, org.name, role, token);
-    console.log("[TRACE] After sendMail()");
+    try {
+      const { sendInvitationEmail } = require('../../utils/email');
+      await sendInvitationEmail(email, org.name, role, token);
+    } catch (error) {
+      // Rollback the invitation if email fails
+      await this.repository.deleteInvitationById(invitation.id, orgId);
+      
+      if (inviter) {
+        await auditService.log({
+          orgId,
+          userId: inviter.id,
+          userEmail: inviter.email,
+          action: AuditActions.MEMBER_INVITED,
+          entityType: 'INVITATION',
+          details: { invitedEmail: email, role, status: 'FAILED_EMAIL' },
+        });
+      }
+      
+      throw error;
+    }
 
-    console.log("[TRACE] Before response return");
-    return { email, role, status: 'invited' };
+    return {
+      id: invitation.id,
+      email: invitation.email,
+      role: invitation.role,
+      expiresAt: invitation.expiresAt,
+    };
   }
 
   async listPendingInvitations(orgId: string) {

@@ -95,6 +95,13 @@ app.get('/health', async (req, res) => {
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV || 'development',
       db: 'ok',
+      smtp: {
+        host: process.env.SMTP_HOST || 'not set (using default)',
+        port: process.env.SMTP_PORT || 'not set (using default)',
+        userSet: !!process.env.SMTP_USER,
+        passSet: !!process.env.SMTP_PASS,
+        fromEmail: process.env.EMAIL_FROM || 'not set',
+      }
     });
   } catch (error) {
     res.status(503).json({
@@ -114,6 +121,30 @@ app.use('/api/transactions', transactionRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/organizations', organizationRoutes);
 app.use('/api/audit', auditRoutes);
+
+app.get('/api/test-smtp', async (req, res) => {
+  try {
+    const { sendEmail } = require('./utils/email');
+    res.status(200).json({ 
+      success: true, 
+      message: 'SMTP Module loaded. Attempting verification...',
+      env: {
+        host: process.env.SMTP_HOST || 'default',
+        port: process.env.SMTP_PORT || 'default',
+        hasUser: !!process.env.SMTP_USER,
+        hasPass: !!process.env.SMTP_PASS,
+        emailFrom: process.env.EMAIL_FROM
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({ 
+      success: false, 
+      message: 'SMTP Error', 
+      error: error.message,
+      stack: error.stack
+    });
+  }
+});
 
 // Error Handling Middleware
 app.use(errorHandler);
