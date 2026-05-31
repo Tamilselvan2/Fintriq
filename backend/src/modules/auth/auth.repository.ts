@@ -89,4 +89,33 @@ export class AuthRepository {
       data: { revoked: true },
     });
   }
+
+  async savePasswordResetToken(userId: string, hashedToken: string, expiresAt: Date) {
+    return prisma.passwordResetToken.create({
+      data: {
+        userId,
+        hashedToken,
+        expiresAt,
+      },
+    });
+  }
+
+  async findPasswordResetToken(hashedToken: string) {
+    return prisma.passwordResetToken.findUnique({
+      where: { hashedToken },
+      include: { user: true },
+    });
+  }
+
+  async deletePasswordResetToken(id: string) {
+    return prisma.passwordResetToken.delete({
+      where: { id },
+    });
+  }
+
+  async deleteUserPasswordResetTokens(userId: string) {
+    return prisma.passwordResetToken.deleteMany({
+      where: { userId },
+    });
+  }
 }

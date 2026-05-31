@@ -2,7 +2,7 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { AuthController } from './auth.controller';
 import { validateRequest } from '../../middlewares/validateRequest';
-import { loginSchema, registerSchema, changePasswordSchema } from './auth.validation';
+import { loginSchema, registerSchema, changePasswordSchema, forgotPasswordSchema, resetPasswordSchema } from './auth.validation';
 import { authenticate } from '../../middlewares/authMiddleware';
 import { verifyCsrfHeader } from '../../middlewares/csrfMiddleware';
 
@@ -24,5 +24,8 @@ router.post('/logout', verifyCsrfHeader, authController.logout);
 router.get('/me', authenticate, authController.getMe);
 // router.patch('/profile', authenticate, validateRequest(updateProfileSchema), authController.updateProfile);
 router.patch('/password', authenticate, validateRequest(changePasswordSchema), authController.changePassword);
+
+router.post('/forgot-password', authLimiter, validateRequest(forgotPasswordSchema), authController.forgotPassword);
+router.post('/reset-password', authLimiter, validateRequest(resetPasswordSchema), authController.resetPassword);
 
 export default router;

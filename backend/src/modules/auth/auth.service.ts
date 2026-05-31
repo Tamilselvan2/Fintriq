@@ -1,7 +1,12 @@
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { AuthRepository } from './auth.repository';
 import { AppError } from '../../utils/errors';
 import { generateAccessToken, generateRefreshToken, hashToken, JwtPayload, verifyRefreshToken } from '../../utils/jwt';
+import { sendResetPasswordEmail } from '../../utils/email';
+import { AuditService, AuditActions } from '../audit/audit.service';
+
+const auditService = new AuditService();
 
 export class AuthService {
   private repository = new AuthRepository();
@@ -126,5 +131,58 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(newPassword, 12);
     await this.repository.updatePassword(userId, hashedPassword);
+  }
+
+  async forgotPassword(email: string) {
+    const user = await this.repository.findUserByEmail(email);
+    if (!user) return; // Do not reveal if email exists
+
+    await this.repository.deleteUserPasswordResetTokens(user.id);
+
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = hashToken(rawToken);
+    
+    const expiresAt = new Date();
+    expiresAt.setMinutes(expiresAt.getMinutes() + 15);
+
+    await this.repository.savePasswordResetToken(user.id, hashedToken, expiresAt);
+
+    await sendResetPasswordEmail(user.email, rawToken);
+
+    auditService.log({
+      orgId: user.orgId,
+      userId: user.id,
+      userEmail: user.email,
+      action: AuditActions.PASSWORD_RESET_REQUESTED,
+      entityType: 'USER',
+      entityId: user.id,
+    });
+  }
+
+  async resetPassword(rawToken: string, newPassword: string) {
+    const hashedToken = hashToken(rawToken);
+    const resetToken = await this.repository.findPasswordResetToken(hashedToken);
+
+    if (!resetToken || resetToken.expiresAt < new Date()) {
+      throw new AppError(400, 'Invalid or expired password reset token');
+    }
+
+    const userId = resetToken.userId;
+    const user = resetToken.user;
+
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    await this.repository.updatePassword(userId, hashedPassword);
+    
+    await this.repository.revokeAllUserRefreshTokens(userId);
+    await this.repository.deletePasswordResetToken(resetToken.id);
+
+    auditService.log({
+      orgId: user.orgId,
+      userId: user.id,
+      userEmail: user.email,
+      action: AuditActions.PASSWORD_RESET_COMPLETED,
+      entityType: 'USER',
+      entityId: user.id,
+    });
   }
 }

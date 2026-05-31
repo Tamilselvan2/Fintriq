@@ -8,6 +8,79 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model Organization {
+  id           String        @id @default(uuid())
+  name         String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  auditLogs    AuditLog[]
+  transactions Transaction[]
+  users        User[]
+}
+
+model Transaction {
+  id           String          @id @default(uuid())
+  type         TransactionType
+  amount       Float
+  category     String
+  description  String?
+  orgId        String
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  organization Organization    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([orgId, type])
+  @@index([orgId, createdAt])
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  passwordHash  String
+  role          Role           @default(USER)
+  orgId         String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  name          String?
+  auditLogs           AuditLog[]
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+  organization        Organization         @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+}
+
+model RefreshToken {
+  id          String   @id @default(uuid())
+  hashedToken String
+  userId      String
+  revoked     Boolean  @default(false)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model AuditLog {
+  id           String       @id @default(uuid())
+  orgId        String
+  userId       String
+  userEmail    String
+  action       String
+  entityType   String
+  entityId     String?
+  details      Json?
+  ipAddress    String?
+  createdAt    DateTime     @default(now())
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([orgId, createdAt])
+}
+
 enum Role {
   ADMIN
   ACCOUNTANT
@@ -19,78 +92,14 @@ enum TransactionType {
   EXPENSE
 }
 
-model Organization {
-  id           String        @id @default(uuid())
-  name         String
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  users        User[]
-  transactions Transaction[]
-  auditLogs    AuditLog[]
-}
-
-model Transaction {
-  id           String          @id @default(uuid())
-  type         TransactionType
-  amount       Float
-  category     String
-  description  String?
-  orgId        String
-  organization Organization    @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
-
-  @@index([orgId])
-  @@index([orgId, type])
-  @@index([orgId, createdAt])
-  @@index([orgId, category])
-  @@index([orgId, category, createdAt])
-}
-
-model User {
-  id           String         @id @default(uuid())
-  email        String         @unique
-  name         String?
-  passwordHash String
-  role         Role           @default(USER)
-  orgId        String
-  organization Organization   @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  refreshTokens RefreshToken[]
-  auditLogs    AuditLog[]
-
-  @@index([orgId])
-}
-
-model RefreshToken {
+model PasswordResetToken {
   id          String   @id @default(uuid())
-  hashedToken String
+  hashedToken String   @unique
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  revoked     Boolean  @default(false)
   expiresAt   DateTime
   createdAt   DateTime @default(now())
 
   @@index([userId])
-  @@unique([hashedToken])
-}
-
-model AuditLog {
-  id           String       @id @default(uuid())
-  orgId        String
-  userId       String
-  userEmail    String
-  action       String       // e.g. CREATE_TRANSACTION, UPDATE_TRANSACTION, DELETE_TRANSACTION
-  entityType   String       // e.g. TRANSACTION, USER
-  entityId     String?
-  details      Json?        // Snapshot of what changed
-  ipAddress    String?
-  createdAt    DateTime     @default(now())
-
-  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([orgId])
-  @@index([orgId, createdAt])
+  @@index([expiresAt])
 }

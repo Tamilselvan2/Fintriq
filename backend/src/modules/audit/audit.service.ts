@@ -10,7 +10,10 @@ export const AuditActions = {
   INVITE_MEMBER: 'INVITE_MEMBER',
   UPDATE_MEMBER_ROLE: 'UPDATE_MEMBER_ROLE',
   REMOVE_MEMBER: 'REMOVE_MEMBER',
+  PASSWORD_RESET_REQUESTED: 'PASSWORD_RESET_REQUESTED',
+  PASSWORD_RESET_COMPLETED: 'PASSWORD_RESET_COMPLETED',
 } as const;
+
 
 export type AuditAction = (typeof AuditActions)[keyof typeof AuditActions];
 
