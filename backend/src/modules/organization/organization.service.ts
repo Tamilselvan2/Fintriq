@@ -56,7 +56,7 @@ export class OrganizationService {
     console.log("[TRACE] After token generation");
 
     console.log("[TRACE] Before DB insert");
-    await this.repository.createInvitation(
+    const invitation = await this.repository.createInvitation(
       email,
       role,
       orgId,
