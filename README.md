@@ -1,56 +1,82 @@
-# Fintriq
+# Fintriq - Project Overview
 
-Fintriq is a multi-tenant financial management SaaS platform built with Next.js, Express, Prisma, and PostgreSQL. The current implementation focuses on tenant-scoped transaction management, dashboard analytics, team access control, and audit visibility in a single full-stack codebase.
+Fintriq is a modern, multi-tenant SaaS financial management platform designed to help organizations seamlessly manage their finances. Fintriq provides tenant-scoped transaction tracking, role-based access control, real-time dashboard analytics, and deep audit visibility within a robust, secure, and performant full-stack architecture. 
 
-## Live
+The core problem Fintriq solves is enabling small-to-medium teams to collaboratively manage their income and expenses in a secure, isolated environment without the overhead of complex enterprise ERPs.
 
-- Frontend: `https://fintriq.vercel.app/`
-- Architecture: [ARCHITECTURE.md](./ARCHITECTURE.md)
+## Live Links
 
-## What Fintriq Includes
+- **Frontend:** https://fintriq.vercel.app
+- **Backend API:** https://tecratech-saas.onrender.com/api
+- **GitHub:** https://github.com/Tamilselvan2/Fintriq
 
-- Multi-tenant organization model with backend-enforced `orgId` isolation
-- JWT authentication with rotating refresh tokens stored in `HttpOnly` cookies
-- Role-based access control for admin and finance workflows
-- Transaction CRUD with filtering, cursor pagination, and CSV export
-- Dashboard analytics for balances, income, expenses, trends, and recent activity
-- Organization member management and admin-only audit log access
-- React Query caching for server state across dashboard, transactions, members, and audit views
+## Features
 
-## Architecture
+### Authentication
+- Register new organization accounts
+- Login securely with encrypted credentials
+- JWT Authentication (Memory-stored access tokens)
+- Refresh Tokens (HttpOnly cookies for enhanced security)
+- Secure Logout (Token revocation)
 
-```txt
-Browser -> Next.js App Router -> Express API -> Prisma -> PostgreSQL
-```
+### Password Recovery
+- Forgot Password via Email (Token-based)
+- Reset Password via secure link
 
-Implementation details, security flows, deployment decisions, and data model design are documented in [ARCHITECTURE.md](./ARCHITECTURE.md).
+### Organization Management
+- Multi-Tenant Organizations (Strict backend-enforced isolation via `orgId`)
+- Team Members list and management
+- Role Based Access (Admin, Accountant, User workflows)
+
+### Invitation System
+- Email Invitations to join organizations
+- Pending Invitations management
+- Resend Invitation capability
+- Accept Invitation Flow (Seamless onboarding for new members)
+
+### Profile Management
+- Edit Profile details
+- Profile Picture Upload & Storage
+
+### Transactions
+- Create new Income or Expense records
+- Update existing transactions
+- Delete transactions safely
+- Filter by Type, Category, Date, and Search
+- Cursor-based pagination for high performance
+
+### Dashboard
+- KPI Cards (Total Income, Total Expense, Net Balance)
+- Income vs Expense Chart (Visual financial breakdown)
+- Monthly Analytics (Aggregated organizational data)
+
+### CSV Export
+- Enhanced CSV Reports (Respects active filters, fully calculated financials)
+- Export formatting optimized for Excel and Google Sheets
+
+### Audit Logs
+- User Activity Tracking (Immutable logs of all CRUD operations)
+- Secure, Admin-only visibility
+
+### Loading Experience
+- High-fidelity Skeleton Loaders to prevent layout shift
+- Background Fetch Indicators (Subtle updates during filtering and pagination)
 
 ## Tech Stack
 
 | Layer | Technologies |
 | --- | --- |
-| Frontend | Next.js 14 App Router, TypeScript, Tailwind CSS, React Query, Axios |
-| Backend | Express.js, TypeScript, Zod, JWT, Prisma ORM |
-| Database | PostgreSQL |
-| Security | HttpOnly refresh cookies, RBAC, Helmet, rate limiting, request validation |
-| Tooling | GitHub Actions, Render deployment config |
+| **Frontend** | Next.js 14 App Router, TypeScript, Tailwind CSS, React Query, Shadcn UI, Recharts |
+| **Backend** | Express.js, TypeScript, Prisma ORM, Zod, JWT |
+| **Database** | PostgreSQL |
+| **Authentication** | HttpOnly refresh cookies, RBAC, Helmet, rate limiting, request validation |
+| **File Storage** | Cloudinary (Profile Pictures) |
+| **Email Service** | Brevo (Transactional Emails) |
+| **Deployment** | Vercel (Frontend), Render (Backend), Supabase (Database) |
 
-## Repository Structure
-
-```txt
-.
-|-- frontend/              Next.js application
-|-- backend/               Express + Prisma API
-|-- .github/workflows/     CI workflow
-|-- render.yaml            Render backend deployment config
-|-- ARCHITECTURE.md        System architecture document
-|-- README.md
-```
-
-## Local Development
+## Local Setup
 
 ### Prerequisites
-
 - Node.js 20+
 - npm
 - PostgreSQL
@@ -66,8 +92,7 @@ npx prisma migrate dev
 npm run dev
 ```
 
-Required backend environment variables:
-
+Required Backend Environment Variables (`backend/.env`):
 ```env
 DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public
 DIRECT_URL=postgresql://USER:PASSWORD@HOST:PORT/DATABASE
@@ -76,8 +101,7 @@ JWT_REFRESH_SECRET=your_jwt_refresh_secret
 PORT=5000
 FRONTEND_URL=http://localhost:3000
 ```
-
-- Health check: `http://localhost:5000/health`
+- API runs on `http://localhost:5000`
 
 ### Frontend Setup
 
@@ -88,74 +112,40 @@ npm ci
 npm run dev
 ```
 
-Required frontend environment variables:
-
+Required Frontend Environment Variables (`frontend/.env.local`):
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000
 NEXT_PUBLIC_APP_NAME=Fintriq
 ```
+- App runs on `http://localhost:3000`
 
-Use the backend origin for `NEXT_PUBLIC_API_URL`. The client normalizes the value and appends `/api` internally, so you do not need to add `/api` yourself.
+## Folder Structure
 
-Frontend URL:
+```txt
+.
+|-- frontend/              # Next.js application
+|   |-- src/app/           # Next.js App Router pages
+|   |-- src/components/    # React components (UI, Skeletons, Shared)
+|   |-- src/hooks/         # React Query hooks
+|   |-- src/types/         # TypeScript definitions
+|
+|-- backend/               # Express + Prisma API
+|   |-- prisma/            # Database schema and migrations
+|   |-- src/modules/       # Feature modules (Auth, Transaction, Audit, Org)
+|   |-- src/utils/         # Utilities (Email, Errors, Storage)
+|
+|-- .github/workflows/     # CI/CD GitHub Actions
+|-- render.yaml            # Render backend deployment config
+|-- ARCHITECTURE.md        # Detailed system architecture document
+|-- README.md              # Project documentation
+```
 
-- `http://localhost:3000`
+## Screenshots
 
-## Available Scripts
+*(Screenshots to be added here - Dashboard, Transactions, Settings, etc.)*
 
-| Area | Command | Notes |
-| --- | --- | --- |
-| Backend | `npm run dev` | Starts the API in development mode |
-| Backend | `npm run build` | Compiles TypeScript to `dist/` |
-| Backend | `npm run start` | Runs the compiled backend |
-| Backend | `npm run typecheck` | Runs `tsc --noEmit` |
-| Backend | `npm run lint` | Currently a placeholder command |
-| Backend | `npm test` | Currently a placeholder command |
-| Frontend | `npm run dev` | Starts the Next.js app |
-| Frontend | `npm run lint` | Runs Next.js ESLint checks |
-| Frontend | `npm run typecheck` | Runs `tsc --noEmit` |
-| Frontend | `npm run build` | Builds the production app |
-| Frontend | `npm run start` | Starts the production frontend |
-| Frontend | `npm test` | Currently a placeholder command |
-
-## API Modules
-
-- `/api/auth` for registration, login, token refresh, logout, session lookup, and password change
-- `/api/transactions` for financial records, filtering, pagination, and export
-- `/api/dashboard` for tenant-scoped KPI and chart aggregation
-- `/api/organizations` for organization settings and member management
-- `/api/audit` for admin audit visibility
-
-## Security Model
-
-- Access tokens are kept in memory on the client instead of `localStorage`
-- Refresh tokens are stored in `HttpOnly` cookies
-- Refresh and logout flows require a CSRF header
-- Request payloads are validated with Zod before reaching business logic
-- Helmet is enabled globally in the API
-- Rate limiting is applied at the API level, with stricter limits on auth routes
-- RBAC and tenant filtering are enforced on the backend, not trusted to the client
-
-## CI/CD
-
-The GitHub Actions workflow in `.github/workflows/ci.yml` runs on pushes to `main` and `master` and performs:
-
-- dependency installation for backend and frontend
-- Prisma client generation
-- Prisma schema validation
-- Prisma migration status checks
-- backend build and typecheck
-- frontend lint, typecheck, and build
-- backend and frontend test script execution
-
-## Deployment
-
-- Frontend: deployed on Vercel at `https://fintriq.vercel.app/`
-- Backend: deployed on Render using [render.yaml](./render.yaml)
-- Database: PostgreSQL through Prisma using `DATABASE_URL` and `DIRECT_URL`
-- Production auth: secure cross-site cookie handling plus CORS restricted by `FRONTEND_URL`
-- Frontend runtime configuration: `NEXT_PUBLIC_API_URL` points to the backend origin and is normalized by the shared Axios client
-
-## Current Status
-
-Fintriq is a strong full-stack SaaS foundation with a clear tenant model, modular backend, and production-minded auth flow. The repository already includes architecture documentation, CI wiring, deployment configuration, and multi-tenant business features, while backend lint coverage and automated test depth are still areas to complete.
+## Future Enhancements
+- Expanded test coverage (Unit and E2E)
+- Invoice generation and PDF exports
+- Advanced financial forecasting tools
+- Plaid / Bank API integration for automated transaction syncing
