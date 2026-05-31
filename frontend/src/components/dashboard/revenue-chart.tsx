@@ -1,6 +1,6 @@
 'use client';
 
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid, ReferenceLine } from 'recharts';
 import { formatCurrency } from '@/lib/utils';
 import { format, parseISO } from 'date-fns';
 
@@ -35,6 +35,8 @@ export function RevenueChart({ data, isLoading }: RevenueChartProps) {
   const formattedData = data.map(item => ({
     ...item,
     formattedMonth: format(parseISO(item.month + '-01'), 'MMM yy'),
+    displayExpense: -Math.abs(item.expense), // Negative for chart rendering below 0
+    rawExpense: item.expense, // Preserve positive value for Tooltip (optional if using Math.abs in formatter)
   }));
 
   return (
@@ -48,17 +50,7 @@ export function RevenueChart({ data, isLoading }: RevenueChartProps) {
       </div>
       <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={formattedData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-            <defs>
-              <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(var(--success))" stopOpacity={0.3}/>
-                <stop offset="95%" stopColor="hsl(var(--success))" stopOpacity={0}/>
-              </linearGradient>
-              <linearGradient id="colorExpense" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(var(--danger))" stopOpacity={0.3}/>
-                <stop offset="95%" stopColor="hsl(var(--danger))" stopOpacity={0}/>
-              </linearGradient>
-            </defs>
+          <BarChart data={formattedData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }} barGap={8}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.3} />
             <XAxis 
               dataKey="formattedMonth" 
@@ -72,14 +64,16 @@ export function RevenueChart({ data, isLoading }: RevenueChartProps) {
               tickLine={false} 
               tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))', fontWeight: 700 }} 
               tickFormatter={(value) => {
-                const formatted = formatCurrency(value);
+                if (value === 0) return '0';
+                const absValue = Math.abs(value);
+                const formatted = formatCurrency(absValue);
                 const symbol = formatted.replace(/[0-9.,\s]/g, '');
-                return `${symbol}${value >= 1000 ? value/1000 + 'k' : value}`;
+                return `${value < 0 ? '-' : ''}${symbol}${absValue >= 1000 ? absValue/1000 + 'k' : absValue}`;
               }} 
               dx={-10} 
             />
             <Tooltip 
-              cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '4 4' }}
+              cursor={{ fill: 'hsl(var(--muted))', opacity: 0.2 }}
               contentStyle={{ 
                 borderRadius: '16px', 
                 border: '1px solid hsl(var(--border))', 
@@ -91,29 +85,24 @@ export function RevenueChart({ data, isLoading }: RevenueChartProps) {
               }}
               itemStyle={{ fontWeight: 800, padding: '4px 0', textTransform: 'uppercase', fontSize: '10px', letterSpacing: '0.1em' }}
               labelStyle={{ color: 'white', fontWeight: 900, marginBottom: '12px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.1em' }}
-              formatter={(value: number) => formatCurrency(value)}
+              formatter={(value: number) => formatCurrency(Math.abs(value))}
             />
-            <Area 
-              type="monotone" 
+            <ReferenceLine y={0} stroke="hsl(var(--foreground))" strokeOpacity={0.2} strokeWidth={2} />
+            <Bar 
               dataKey="income" 
               name="Income" 
-              stroke="#10b981" 
-              strokeWidth={4} 
-              fillOpacity={1} 
-              fill="url(#colorIncome)" 
-              activeDot={{ r: 6, strokeWidth: 0, fill: '#10b981' }}
+              fill="#10b981" 
+              radius={[4, 4, 0, 0]}
+              maxBarSize={32}
             />
-            <Area 
-              type="monotone" 
-              dataKey="expense" 
+            <Bar 
+              dataKey="displayExpense" 
               name="Expense" 
-              stroke="#f43f5e" 
-              strokeWidth={4} 
-              fillOpacity={1} 
-              fill="url(#colorExpense)" 
-              activeDot={{ r: 6, strokeWidth: 0, fill: '#f43f5e' }}
+              fill="#f43f5e" 
+              radius={[4, 4, 0, 0]}
+              maxBarSize={32}
             />
-          </AreaChart>
+          </BarChart>
         </ResponsiveContainer>
       </div>
     </div>

@@ -13,19 +13,27 @@ export class DashboardService {
     const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
 
-    const [
-      aggregates, 
-      incomeCategories, 
-      expenseCategories, 
-      monthlyData, 
-      recentTransactions,
-      currentMonthAggregates,
-      previousMonthAggregates
-    ] = await Promise.all([
-      this.repository.getAggregates(orgId, startDate, endDate),
-      this.repository.getCategorySummaries(orgId, 'INCOME', startDate, endDate),
-      this.repository.getCategorySummaries(orgId, 'EXPENSE', startDate, endDate),
-      this.repository.getMonthlyAnalytics(orgId, startDate, endDate),
+      let chartStartDate = startDate;
+      if (!chartStartDate) {
+        chartStartDate = new Date();
+        chartStartDate.setMonth(chartStartDate.getMonth() - 5);
+        chartStartDate.setDate(1);
+        chartStartDate.setHours(0, 0, 0, 0);
+      }
+
+      const [
+        aggregates, 
+        incomeCategories, 
+        expenseCategories, 
+        monthlyData, 
+        recentTransactions,
+        currentMonthAggregates,
+        previousMonthAggregates
+      ] = await Promise.all([
+        this.repository.getAggregates(orgId, startDate, endDate),
+        this.repository.getCategorySummaries(orgId, 'INCOME', startDate, endDate),
+        this.repository.getCategorySummaries(orgId, 'EXPENSE', startDate, endDate),
+        this.repository.getMonthlyAnalytics(orgId, chartStartDate, endDate),
       this.repository.getRecentTransactions(orgId, 5),
       this.repository.getAggregates(orgId, currentMonthStart, now),
       this.repository.getAggregates(orgId, previousMonthStart, previousMonthEnd)
