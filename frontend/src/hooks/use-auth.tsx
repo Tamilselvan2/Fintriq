@@ -25,7 +25,7 @@ interface AuthContextType {
   isAdmin: boolean;
   isAccountant: boolean;
   changePassword: (data: any) => Promise<void>;
-  updateUser: (user: User) => void;
+  updateUser: (user: User | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
