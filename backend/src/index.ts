@@ -1,5 +1,8 @@
 import dotenv from 'dotenv';
 import path from 'path';
+import dns from 'dns';
+
+dns.setDefaultResultOrder('ipv4first');
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 import app from './app';

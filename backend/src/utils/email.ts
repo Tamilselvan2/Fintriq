@@ -11,10 +11,15 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
-});
+  family: 4,
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
+} as any);
 
 transporter.verify().then(() => {
   console.log("SMTP verified");
+
 }).catch(error => {
   console.error("SMTP verify error:", error);
 });
@@ -23,6 +28,9 @@ export const sendEmail = async (to: string, subject: string, text: string, html:
   const fromEmail = process.env.EMAIL_FROM || 'support@fintriq.com';
 
   try {
+    const startTime = Date.now();
+    logger.info(`[TRACE] Before sendMail() to ${to}`);
+
     const info = await transporter.sendMail({
       from: `"Fintriq" <${fromEmail}>`,
       to,
@@ -30,11 +38,14 @@ export const sendEmail = async (to: string, subject: string, text: string, html:
       text,
       html,
     });
+
+    const duration = Date.now() - startTime;
+    logger.info(`[TRACE] After sendMail(). Duration: ${duration}ms`);
     logger.info(`Email sent: ${info.messageId} to ${to}`);
     return info;
   } catch (error) {
     console.error("SMTP ERROR:", error);
-    logger.error(`Failed to send email to ${to}: ${error}`);
+    logger.error(`[TRACE] Error in sendMail() to ${to}. Error: ${error}`);
     throw error;
   }
 };
