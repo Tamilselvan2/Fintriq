@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from 'react';
 import { authApi } from '@/lib/auth-api';
 import { toast } from 'sonner';
 import { ProfileSkeleton } from '@/components/skeletons/profile-skeleton';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function ProfileSettingsPage() {
   const { user, updateUser } = useAuth();
@@ -104,7 +105,7 @@ export default function ProfileSettingsPage() {
                 disabled={isUploading}
                 className="absolute inset-0 bg-black/50 text-white rounded-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isUploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Upload className="w-6 h-6" />}
+                {isUploading ? <Spinner className="w-6 h-6 text-white" /> : <Upload className="w-6 h-6" />}
               </button>
             </div>
             
@@ -124,7 +125,7 @@ export default function ProfileSettingsPage() {
                 disabled={isUploading}
                 className="text-sm px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
               >
-                {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                {isUploading ? <Spinner className="w-4 h-4 text-current" /> : <Upload className="w-4 h-4" />}
                 {isUploading ? 'Uploading...' : 'Change Picture'}
               </button>
             </div>
@@ -152,7 +153,7 @@ export default function ProfileSettingsPage() {
                   disabled={isSavingName || nameInput.trim() === user.name}
                   className="px-4 py-3 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap shadow-sm"
                 >
-                  {isSavingName ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  {isSavingName ? <Spinner className="w-4 h-4 text-white" /> : <Save className="w-4 h-4" />}
                   <span className="hidden sm:inline">Save</span>
                 </button>
               </div>

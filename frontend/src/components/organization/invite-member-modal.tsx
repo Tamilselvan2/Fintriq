@@ -7,6 +7,7 @@ import { inviteMemberSchema, InviteMemberInput } from '@/lib/validations/organiz
 import { Role } from '@/types/models';
 import { useInviteMember } from '@/hooks/use-organization';
 import { toast } from 'sonner';
+import { Spinner } from '@/components/ui/spinner';
 
 interface InviteMemberModalProps {
   isOpen: boolean;
@@ -79,7 +80,7 @@ export function InviteMemberModal({ isOpen, onOpenChange }: InviteMemberModalPro
               disabled={inviteMutation.isPending}
               className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-brand-blue hover:bg-blue-600 transition-colors disabled:opacity-50 flex items-center gap-2 shadow-sm"
             >
-              {inviteMutation.isPending && <span className="animate-spin border-2 border-white/20 border-t-white rounded-full w-4 h-4"></span>}
+              {inviteMutation.isPending && <Spinner className="w-4 h-4 text-white" />}
               Send Invitation
             </button>
           </div>

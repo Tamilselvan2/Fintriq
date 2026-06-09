@@ -3,6 +3,7 @@ import { usePendingInvitations, useResendInvitation } from '@/hooks/use-organiza
 import { Mail, Send, Clock, Shield, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { PendingInvitationsSkeleton } from '@/components/skeletons/team-skeleton';
+import { EmptyState } from '@/components/ui/empty-state';
 
 export function PendingInvitationsTable() {
   const { data: invitations = [], isLoading, isFetching } = usePendingInvitations();
@@ -15,7 +16,16 @@ export function PendingInvitationsTable() {
   }
 
   if (invitations.length === 0) {
-    return null;
+    return (
+      <div className="mt-8">
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Pending Invitations</h3>
+        <EmptyState
+          icon={<Mail className="w-8 h-8" />}
+          title="No pending invitations"
+          description="Any sent invitations that haven't been accepted yet will appear here."
+        />
+      </div>
+    );
   }
 
   const handleResend = async (id: string) => {

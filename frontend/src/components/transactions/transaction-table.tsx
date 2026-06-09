@@ -7,6 +7,7 @@ import { MoreHorizontal, Pencil, Trash2, Receipt } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { RoleGate } from '../auth/role-gate';
 import { Role } from '@/types/models';
+import { EmptyState } from '@/components/ui/empty-state';
 
 interface TransactionTableProps {
   transactions: Transaction[];
@@ -53,14 +54,12 @@ export function TransactionTable({ transactions, onEdit, onDelete }: Transaction
 
   if (transactions.length === 0) {
     return (
-      <div className="p-16 text-center bg-white dark:bg-slate-950 flex flex-col items-center justify-center min-h-[400px]">
-        <div className="w-24 h-24 bg-gradient-to-tr from-brand-blue/20 to-emerald-400/20 dark:from-brand-blue/10 dark:to-emerald-400/10 rounded-full flex items-center justify-center mb-6 shadow-sm border border-slate-100 dark:border-slate-800 relative">
-          <div className="absolute inset-2 bg-gradient-to-tr from-brand-blue to-emerald-400 rounded-full opacity-10 blur-xl"></div>
-          <Receipt className="w-10 h-10 text-brand-blue relative z-10" strokeWidth={1.5} />
-        </div>
-        <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">No transactions yet</h3>
-        <p className="mt-3 text-slate-500 font-medium max-w-md">Create your first transaction to unlock analytics, charts, and detailed reporting.</p>
-      </div>
+      <EmptyState
+        icon={<Receipt className="w-8 h-8" strokeWidth={1.5} />}
+        title="No transactions yet"
+        description="Create your first transaction to unlock analytics, charts, and detailed reporting."
+        className="min-h-[400px]"
+      />
     );
   }
 

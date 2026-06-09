@@ -7,7 +7,8 @@ import { useAuth } from '@/hooks/use-auth';
 import { useUpdateMemberRole, useRemoveMember } from '@/hooks/use-organization';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '../shared/confirm-dialog';
-import { ShieldAlert, ShieldCheck, User as UserIcon } from 'lucide-react';
+import { ShieldAlert, ShieldCheck, User as UserIcon, Users } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
 
 interface TeamTableProps {
   members: User[];
@@ -47,6 +48,16 @@ export function TeamTable({ members }: TeamTableProps) {
       default: return <UserIcon size={14} className="text-slate-400" />;
     }
   };
+
+  if (members.length === 0) {
+    return (
+      <EmptyState
+        icon={<Users className="w-8 h-8" />}
+        title="No team members"
+        description="You don't have any members in your organization yet. Invite members to collaborate."
+      />
+    );
+  }
 
   return (
     <>

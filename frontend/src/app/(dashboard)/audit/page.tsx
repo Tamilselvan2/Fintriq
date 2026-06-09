@@ -8,6 +8,7 @@ import { ShieldCheck, Plus, Pencil, Trash2, UserPlus, Loader2 } from 'lucide-rea
 import { Pagination } from '@/components/shared/pagination';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { AuditLogSkeleton } from '@/components/skeletons/audit-log-skeleton';
+import { EmptyState } from '@/components/ui/empty-state';
 
 const ACTION_LABELS: Record<string, { label: string; icon: JSX.Element; color: string }> = {
   CREATE_TRANSACTION: { label: 'Created Transaction', icon: <Plus size={14} />, color: 'text-brand-emerald bg-brand-emerald/10' },
@@ -151,14 +152,12 @@ function AuditLogPageInner() {
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{(error as any)?.message || 'Please try again later.'}</p>
           </div>
         ) : !data?.data.length ? (
-          <div className="p-16 text-center bg-white dark:bg-slate-950 flex flex-col items-center justify-center min-h-[400px]">
-            <div className="w-24 h-24 bg-gradient-to-tr from-brand-blue/20 to-emerald-400/20 dark:from-brand-blue/10 dark:to-emerald-400/10 rounded-full flex items-center justify-center mb-6 shadow-sm border border-slate-100 dark:border-slate-800 relative">
-              <div className="absolute inset-2 bg-gradient-to-tr from-brand-blue to-emerald-400 rounded-full opacity-10 blur-xl"></div>
-              <ShieldCheck className="w-10 h-10 text-brand-blue relative z-10" strokeWidth={1.5} />
-            </div>
-            <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">No activity yet</h3>
-            <p className="mt-3 text-slate-500 font-medium max-w-md">Actions performed in this organisation will appear here securely.</p>
-          </div>
+          <EmptyState
+            icon={<ShieldCheck className="w-8 h-8" strokeWidth={1.5} />}
+            title="No activity yet"
+            description="Actions performed in this organisation will appear here securely."
+            className="min-h-[400px]"
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[900px]">

@@ -7,6 +7,7 @@ import { forgotPasswordSchema, ForgotPasswordInput } from '@/lib/validations/aut
 import { authApi } from '@/lib/auth-api';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function ForgotPasswordPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,7 +53,7 @@ export default function ForgotPasswordPage() {
     <div className="animate-in fade-in slide-in-from-bottom-6 duration-1000">
       <div className="text-center mb-10">
         <h1 className="text-4xl font-black text-white tracking-tight mb-3">Reset Password</h1>
-        <p className="text-[#94a3b8] text-sm opacity-80">
+        <p className="text-muted-foreground text-sm opacity-80">
           Enter your email address and we'll send you a link to reset your password.
         </p>
       </div>
@@ -76,7 +77,12 @@ export default function ForgotPasswordPage() {
           disabled={isSubmitting}
           className="w-full btn-primary btn-glow py-3 mt-2"
         >
-          {isSubmitting ? 'Sending...' : 'Send Reset Link'}
+          {isSubmitting ? (
+            <span className="flex items-center justify-center gap-2">
+              <Spinner className="h-5 w-5 text-white" />
+              Sending...
+            </span>
+          ) : 'Send Reset Link'}
         </button>
       </form>
 

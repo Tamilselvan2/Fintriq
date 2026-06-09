@@ -13,6 +13,7 @@ import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 import { TableSkeleton } from '@/components/skeletons/table-skeleton';
+import { Spinner } from '@/components/ui/spinner';
 
 function TransactionsPageInner() {
   const router = useRouter();
@@ -32,6 +33,7 @@ function TransactionsPageInner() {
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [deletingTransaction, setDeletingTransaction] = useState<Transaction | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   const { data, isLoading, isFetching } = useTransactions({
     cursor,
@@ -96,6 +98,7 @@ function TransactionsPageInner() {
       return;
     }
 
+    setIsExporting(true);
     try {
       const exportParams = new URLSearchParams(searchParams.toString());
       exportParams.delete('cursor');
@@ -123,6 +126,8 @@ function TransactionsPageInner() {
       toast.success('CSV Export downloaded!');
     } catch (error) {
       toast.error('Failed to export CSV');
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -155,10 +160,11 @@ function TransactionsPageInner() {
           <RoleGate allowedRoles={[Role.ADMIN, Role.ACCOUNTANT]}>
             <button
               onClick={handleExportCsv}
-              className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-border hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-4 py-2.5 rounded-xl font-bold transition-all shadow-sm active:translate-y-px"
+              disabled={isExporting}
+              className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-border hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-4 py-2.5 rounded-xl font-bold transition-all shadow-sm active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Download size={18} strokeWidth={2.5} />
-              <span>Export CSV</span>
+              {isExporting ? <Spinner className="w-[18px] h-[18px]" /> : <Download size={18} strokeWidth={2.5} />}
+              <span>{isExporting ? 'Exporting...' : 'Export CSV'}</span>
             </button>
             <button
               onClick={handleCreate}

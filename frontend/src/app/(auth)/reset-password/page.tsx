@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/use-auth';
 import { setAccessToken } from '@/lib/api';
+import { Spinner } from '@/components/ui/spinner';
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -88,7 +89,7 @@ function ResetPasswordForm() {
     <div className="animate-in fade-in slide-in-from-bottom-6 duration-1000">
       <div className="text-center mb-10">
         <h1 className="text-4xl font-black text-white tracking-tight mb-3">Set New Password</h1>
-        <p className="text-[#94a3b8] text-sm opacity-80">
+        <p className="text-muted-foreground text-sm opacity-80">
           Enter your new password below.
         </p>
       </div>
@@ -125,7 +126,12 @@ function ResetPasswordForm() {
           disabled={isSubmitting}
           className="w-full btn-primary btn-glow py-3 mt-2"
         >
-          {isSubmitting ? 'Updating...' : 'Reset Password'}
+          {isSubmitting ? (
+            <span className="flex items-center justify-center gap-2">
+              <Spinner className="h-5 w-5 text-white" />
+              Updating...
+            </span>
+          ) : 'Reset Password'}
         </button>
       </form>
     </div>
@@ -136,7 +142,7 @@ export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
       <div className="flex justify-center items-center min-h-screen">
-        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+        <Spinner className="w-8 h-8 text-primary" />
       </div>
     }>
       <ResetPasswordForm />
