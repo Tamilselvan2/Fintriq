@@ -13,6 +13,7 @@ import { authApi } from '@/lib/auth-api';
 import { setAccessToken } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { LoginInput } from '@/lib/validations/auth';
+import { AppLoader } from '@/components/ui/app-loader';
 
 const TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
 
@@ -175,6 +176,7 @@ export const AuthProvider = ({
         isAccountant: user?.role === Role.ACCOUNTANT,
       }}
     >
+      <AppLoader isLoading={isLoading} />
       {children}
     </AuthContext.Provider>
   );
