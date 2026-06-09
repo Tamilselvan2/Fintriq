@@ -1,7 +1,7 @@
 'use client';
 
 import { Search } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useCategories } from '@/hooks/use-categories';
 
 interface FilterBarProps {
@@ -23,12 +23,19 @@ export function FilterBar({ initialSearch = '', initialType = '', initialCategor
   useEffect(() => { setType(initialType); }, [initialType]);
   useEffect(() => { setCategory(initialCategory); }, [initialCategory]);
 
+  const onFilterChangeRef = useRef(onFilterChange);
   useEffect(() => {
+    onFilterChangeRef.current = onFilterChange;
+  }, [onFilterChange]);
+
+  useEffect(() => {
+    // Only trigger filter change if local state changes, NOT when the callback reference changes.
+    // This prevents pagination cursor updates from resetting the filters.
     const timer = setTimeout(() => {
-      onFilterChange({ search, type, category });
+      onFilterChangeRef.current({ search, type, category });
     }, 400);
     return () => clearTimeout(timer);
-  }, [search, type, category, onFilterChange]);
+  }, [search, type, category]);
 
   return (
     <div className="bg-card p-4 rounded-2xl shadow-sm border border-border flex flex-col sm:flex-row gap-4 items-center transition-all">
