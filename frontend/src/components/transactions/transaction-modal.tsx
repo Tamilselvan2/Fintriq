@@ -6,7 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { transactionSchema, TransactionInput } from '@/lib/validations/transaction';
 import { Transaction } from '@/types/models';
 import { useCreateTransaction, useUpdateTransaction } from '@/hooks/use-transactions';
-import { useEffect } from 'react';
+import { useCategories, useCreateCategory } from '@/hooks/use-categories';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface TransactionModalProps {
@@ -22,10 +23,29 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
   const updateMutation = useUpdateTransaction();
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<TransactionInput>({
+  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<TransactionInput>({
     resolver: zodResolver(transactionSchema),
     defaultValues: { type: 'EXPENSE', amount: 0, category: '', description: '', transactionDate: '' }
   });
+
+  const { data: categories = [] } = useCategories();
+  const createCategoryMutation = useCreateCategory();
+  
+  const [isCreatingCategory, setIsCreatingCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+
+  const handleCreateCategory = async () => {
+    if (!newCategoryName.trim()) return;
+    try {
+      const newCat = await createCategoryMutation.mutateAsync(newCategoryName);
+      setIsCreatingCategory(false);
+      setNewCategoryName('');
+      setValue('category', newCat.name, { shouldValidate: true });
+      toast.success('Category created');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to create category');
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -40,6 +60,8 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
       } else {
         reset({ type: 'EXPENSE', amount: 0, category: '', description: '', transactionDate: '' });
       }
+      setIsCreatingCategory(false);
+      setNewCategoryName('');
     }
   }, [isOpen, transaction, reset]);
 
@@ -107,13 +129,59 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
 
           <div>
             <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Category</label>
-            <input
-              type="text"
-              placeholder="e.g. Software, Payroll, Travel"
-              {...register('category')}
-              className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-border rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 placeholder-slate-400"
-            />
-            {errors.category && <p className="text-brand-rose text-xs mt-1.5 font-medium">{errors.category.message}</p>}
+            
+            {isCreatingCategory ? (
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="New category name"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  className="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-border rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-blue/50"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={handleCreateCategory}
+                  disabled={createCategoryMutation.isPending}
+                  className="px-4 py-2.5 bg-brand-blue text-white rounded-xl text-sm font-bold hover:bg-blue-600 transition-colors disabled:opacity-50 flex items-center gap-2"
+                >
+                  {createCategoryMutation.isPending && <span className="animate-spin border-2 border-white/20 border-t-white rounded-full w-3 h-3"></span>}
+                  Save
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCreatingCategory(false);
+                    setNewCategoryName('');
+                  }}
+                  className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <select
+                {...register('category')}
+                onChange={(e) => {
+                  if (e.target.value === 'CREATE_NEW') {
+                    setIsCreatingCategory(true);
+                    setValue('category', ''); // Clear form value while creating
+                  } else {
+                    setValue('category', e.target.value, { shouldValidate: true });
+                  }
+                }}
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-border rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-blue/50"
+              >
+                <option value="">Select a category...</option>
+                {categories.map(c => (
+                  <option key={c.id} value={c.name}>{c.name}</option>
+                ))}
+                <option value="CREATE_NEW" className="font-bold text-brand-blue">+ Create New Category</option>
+              </select>
+            )}
+            
+            {errors.category && !isCreatingCategory && <p className="text-brand-rose text-xs mt-1.5 font-medium">{errors.category.message}</p>}
           </div>
 
 

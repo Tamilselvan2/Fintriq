@@ -17,6 +17,7 @@ model Organization {
   transactions Transaction[]
   users        User[]
   invitations  InvitationToken[]
+  categories   Category[]
 }
 
 model Transaction {
@@ -126,4 +127,17 @@ model InvitationToken {
   @@index([orgId])
   @@index([email])
   @@index([expiresAt])
+}
+
+model Category {
+  id           String       @id @default(uuid())
+  name         String
+  isActive     Boolean      @default(true)
+  orgId        String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, name])
+  @@index([orgId])
 }

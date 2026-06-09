@@ -10,6 +10,7 @@ import transactionRoutes from './modules/transaction/transaction.routes';
 import dashboardRoutes from './modules/dashboard/dashboard.routes';
 import organizationRoutes from './modules/organization/organization.routes';
 import auditRoutes from './modules/audit/audit.routes';
+import categoryRoutes from './modules/category/category.routes';
 
 const app = express();
 const API_VERSION = process.env.npm_package_version || '1.0.0';
@@ -120,6 +121,7 @@ app.use('/api/transactions', transactionRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/organizations', organizationRoutes);
 app.use('/api/audit', auditRoutes);
+app.use('/api/categories', categoryRoutes);
 
 // Error Handling Middleware
 app.use(errorHandler);

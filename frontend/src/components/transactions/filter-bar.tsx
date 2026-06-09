@@ -2,6 +2,7 @@
 
 import { Search } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useCategories } from '@/hooks/use-categories';
 
 interface FilterBarProps {
   initialSearch?: string;
@@ -14,6 +15,8 @@ export function FilterBar({ initialSearch = '', initialType = '', initialCategor
   const [search, setSearch] = useState(initialSearch);
   const [type, setType] = useState<'INCOME' | 'EXPENSE' | ''>(initialType);
   const [category, setCategory] = useState(initialCategory);
+  
+  const { data: categories = [] } = useCategories();
 
   // Sync if parent-provided URL params change (e.g. back/forward navigation)
   useEffect(() => { setSearch(initialSearch); }, [initialSearch]);
@@ -57,12 +60,9 @@ export function FilterBar({ initialSearch = '', initialType = '', initialCategor
           className="px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-border rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 flex-1 sm:w-40"
         >
           <option value="">All Categories</option>
-          <option value="Software">Software</option>
-          <option value="Payroll">Payroll</option>
-          <option value="Consulting">Consulting</option>
-          <option value="Marketing">Marketing</option>
-          <option value="Office Supplies">Office Supplies</option>
-          <option value="Travel">Travel</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.name}>{c.name}</option>
+          ))}
         </select>
       </div>
     </div>
