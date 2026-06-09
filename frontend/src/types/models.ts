@@ -35,6 +35,7 @@ export interface Transaction {
   category: string;
   description: string | null;
   orgId: string;
+  transactionDate?: string | null;
   createdAt: string;
   updatedAt: string;
 }

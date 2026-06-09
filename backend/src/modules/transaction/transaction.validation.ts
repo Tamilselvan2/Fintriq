@@ -6,6 +6,7 @@ export const createTransactionSchema = z.object({
   amount: z.number().positive('Amount must be positive'),
   category: z.string().min(1, 'Category is required'),
   description: z.string().optional(),
+  transactionDate: z.string().refine(val => !isNaN(Date.parse(val)), 'Invalid date format').optional(),
   createdAt: z.string().datetime().optional(),
 });
 
@@ -14,6 +15,7 @@ export const updateTransactionSchema = z.object({
   amount: z.number().positive('Amount must be positive').optional(),
   category: z.string().min(1, 'Category is required').optional(),
   description: z.string().optional(),
+  transactionDate: z.string().refine(val => !isNaN(Date.parse(val)), 'Invalid date format').optional(),
   createdAt: z.string().datetime().optional(),
 });
 

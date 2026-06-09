@@ -70,8 +70,8 @@ export function TransactionTable({ transactions, onEdit, onDelete }: Transaction
           <thead>
             <tr className="bg-muted/50 border-b border-border text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
               <th className="px-6 py-4 whitespace-nowrap">Date</th>
-              <th className="px-6 py-4">Description</th>
               <th className="px-6 py-4 whitespace-nowrap">Category</th>
+              <th className="px-6 py-4">Description</th>
               <th className="px-6 py-4 whitespace-nowrap">Type</th>
               <th className="px-6 py-4 whitespace-nowrap text-right">Amount</th>
               <th className="px-6 py-4 whitespace-nowrap text-right">Actions</th>
@@ -83,15 +83,15 @@ export function TransactionTable({ transactions, onEdit, onDelete }: Transaction
               return (
                 <tr key={t.id} className="hover:bg-primary/[0.02] border-b border-border transition-colors group">
                   <td className="px-6 py-5 whitespace-nowrap text-sm font-bold text-muted-foreground/80">
-                    {format(new Date(t.createdAt), 'MMM dd, yyyy')}
-                  </td>
-                  <td className="px-6 py-5 text-sm font-extrabold text-foreground max-w-[250px] truncate group-hover:text-primary transition-colors">
-                    {t.description || <span className="text-muted-foreground/60 font-normal italic">No description</span>}
+                    {format(new Date(t.transactionDate ?? t.createdAt), 'MMM dd, yyyy')}
                   </td>
                   <td className="px-6 py-5 whitespace-nowrap text-sm text-muted-foreground">
                     <span className="bg-slate-900/50 px-3 py-1.5 rounded-lg text-xs font-bold border border-border/50 text-slate-400 group-hover:border-primary/30 transition-all">
                       {t.category}
                     </span>
+                  </td>
+                  <td className="px-6 py-5 text-sm font-extrabold text-foreground max-w-[250px] truncate group-hover:text-primary transition-colors">
+                    {t.description || <span className="text-muted-foreground/60 font-normal italic">No description</span>}
                   </td>
                   <td className="px-6 py-5 whitespace-nowrap">
                     <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-[10px] uppercase tracking-widest font-black ${isIncome ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>

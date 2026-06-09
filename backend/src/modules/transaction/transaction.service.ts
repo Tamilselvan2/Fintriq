@@ -12,12 +12,14 @@ export class TransactionService {
       amount: number;
       category: string;
       description?: string;
+      transactionDate?: string;
       createdAt?: string;
     }
   ) {
     return this.repository.create({
       ...data,
       orgId,
+      transactionDate: data.transactionDate ? new Date(data.transactionDate) : null,
     });
   }
 
@@ -31,10 +33,15 @@ export class TransactionService {
       amount: number;
       category: string;
       description: string;
+      transactionDate: string;
       createdAt: string;
     }>
   ) {
-    const transaction = await this.repository.update(id, orgId, data);
+    const updateData: any = { ...data };
+    if (data.transactionDate !== undefined) {
+      updateData.transactionDate = data.transactionDate ? new Date(data.transactionDate) : null;
+    }
+    const transaction = await this.repository.update(id, orgId, updateData);
 
     if (!transaction) {
       throw new AppError(404, 'Transaction not found');
@@ -145,9 +152,21 @@ export class TransactionService {
       ];
     }
     if (filters.startDate || filters.endDate) {
-      where.createdAt = {};
-      if (filters.startDate) where.createdAt.gte = new Date(filters.startDate);
-      if (filters.endDate) where.createdAt.lte = new Date(filters.endDate);
+      where.OR = [
+        {
+          transactionDate: {
+            ...(filters.startDate && { gte: new Date(filters.startDate) }),
+            ...(filters.endDate && { lte: new Date(filters.endDate) }),
+          }
+        },
+        {
+          transactionDate: null,
+          createdAt: {
+            ...(filters.startDate && { gte: new Date(filters.startDate) }),
+            ...(filters.endDate && { lte: new Date(filters.endDate) }),
+          }
+        }
+      ];
     }
 
     // 3. Calculate Financials
@@ -209,7 +228,7 @@ export class TransactionService {
 
       for (const t of batch) {
         if (aborted) break;
-        const date = t.createdAt.toISOString();
+        const date = (t.transactionDate ?? t.createdAt).toISOString();
         const desc = t.description ? `"${t.description.replace(/"/g, '""')}"` : '""';
         const category = `"${t.category.replace(/"/g, '""')}"`;
         const amount = t.amount;

@@ -24,7 +24,7 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<TransactionInput>({
     resolver: zodResolver(transactionSchema),
-    defaultValues: { type: 'EXPENSE', amount: 0, category: '', description: '' }
+    defaultValues: { type: 'EXPENSE', amount: 0, category: '', description: '', transactionDate: '' }
   });
 
   useEffect(() => {
@@ -35,9 +35,10 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
           amount: transaction.amount,
           category: transaction.category,
           description: transaction.description || '',
+          transactionDate: transaction.transactionDate ? transaction.transactionDate.substring(0, 10) : '',
         });
       } else {
-        reset({ type: 'EXPENSE', amount: 0, category: '', description: '' });
+        reset({ type: 'EXPENSE', amount: 0, category: '', description: '', transactionDate: '' });
       }
     }
   }, [isOpen, transaction, reset]);
@@ -125,6 +126,17 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
               placeholder="Add details about this transaction..."
               className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-border rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 resize-none placeholder-slate-400"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Transaction Date <span className="text-slate-400 font-normal">(Optional)</span></label>
+            <input
+              type="date"
+              {...register('transactionDate')}
+              className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-border rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 placeholder-slate-400"
+              placeholder="Leave blank to use today's date"
+            />
+            {errors.transactionDate && <p className="text-brand-rose text-xs mt-1.5 font-medium">{errors.transactionDate.message}</p>}
           </div>
 
           <div className="flex justify-end gap-3 pt-4">

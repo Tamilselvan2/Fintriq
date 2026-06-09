@@ -27,6 +27,7 @@ export class TransactionController {
           amount: transaction.amount,
           category: transaction.category,
           description: transaction.description,
+          transactionDate: transaction.transactionDate,
         },
       });
 

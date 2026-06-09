@@ -26,6 +26,7 @@ model Transaction {
   category     String
   description  String?
   orgId        String
+  transactionDate DateTime?
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
   organization Organization    @relation(fields: [orgId], references: [id], onDelete: Cascade)
@@ -33,6 +34,7 @@ model Transaction {
   @@index([orgId])
   @@index([orgId, type])
   @@index([orgId, createdAt])
+  @@index([orgId, transactionDate])
 }
 
 model User {

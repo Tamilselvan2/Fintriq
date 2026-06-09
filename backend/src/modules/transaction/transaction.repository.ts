@@ -48,10 +48,21 @@ export class TransactionRepository {
       ...(type && { type }),
       ...(category && { category }),
       ...(startDate || endDate ? {
-        createdAt: {
-          ...(startDate && { gte: startDate }),
-          ...(endDate && { lte: endDate }),
-        }
+        OR: [
+          {
+            transactionDate: {
+              ...(startDate && { gte: startDate }),
+              ...(endDate && { lte: endDate }),
+            }
+          },
+          {
+            transactionDate: null,
+            createdAt: {
+              ...(startDate && { gte: startDate }),
+              ...(endDate && { lte: endDate }),
+            }
+          }
+        ]
       } : {})
     };
 

@@ -6,10 +6,21 @@ export class DashboardRepository {
     const where: Prisma.TransactionWhereInput = {
       orgId,
       ...(startDate || endDate ? {
-        createdAt: {
-          ...(startDate && { gte: startDate }),
-          ...(endDate && { lte: endDate }),
-        }
+        OR: [
+          {
+            transactionDate: {
+              ...(startDate && { gte: startDate }),
+              ...(endDate && { lte: endDate }),
+            }
+          },
+          {
+            transactionDate: null,
+            createdAt: {
+              ...(startDate && { gte: startDate }),
+              ...(endDate && { lte: endDate }),
+            }
+          }
+        ]
       } : {})
     };
 
@@ -30,10 +41,21 @@ export class DashboardRepository {
       orgId,
       type,
       ...(startDate || endDate ? {
-        createdAt: {
-          ...(startDate && { gte: startDate }),
-          ...(endDate && { lte: endDate }),
-        }
+        OR: [
+          {
+            transactionDate: {
+              ...(startDate && { gte: startDate }),
+              ...(endDate && { lte: endDate }),
+            }
+          },
+          {
+            transactionDate: null,
+            createdAt: {
+              ...(startDate && { gte: startDate }),
+              ...(endDate && { lte: endDate }),
+            }
+          }
+        ]
       } : {})
     };
 
@@ -57,7 +79,7 @@ export class DashboardRepository {
     
     let rawQuery = Prisma.sql`
       SELECT 
-        DATE_TRUNC('month', "createdAt") as "month",
+        DATE_TRUNC('month', COALESCE("transactionDate", "createdAt")) as "month",
         "type"::text as "type",
         SUM("amount") as "total"
       FROM "Transaction"
@@ -65,14 +87,14 @@ export class DashboardRepository {
     `;
 
     if (startDate && endDate) {
-      rawQuery = Prisma.sql`${rawQuery} AND "createdAt" >= ${startDate} AND "createdAt" <= ${endDate}`;
+      rawQuery = Prisma.sql`${rawQuery} AND COALESCE("transactionDate", "createdAt") >= ${startDate} AND COALESCE("transactionDate", "createdAt") <= ${endDate}`;
     } else if (startDate) {
-      rawQuery = Prisma.sql`${rawQuery} AND "createdAt" >= ${startDate}`;
+      rawQuery = Prisma.sql`${rawQuery} AND COALESCE("transactionDate", "createdAt") >= ${startDate}`;
     } else if (endDate) {
-      rawQuery = Prisma.sql`${rawQuery} AND "createdAt" <= ${endDate}`;
+      rawQuery = Prisma.sql`${rawQuery} AND COALESCE("transactionDate", "createdAt") <= ${endDate}`;
     }
 
-    rawQuery = Prisma.sql`${rawQuery} GROUP BY DATE_TRUNC('month', "createdAt"), "type" ORDER BY "month" ASC`;
+    rawQuery = Prisma.sql`${rawQuery} GROUP BY DATE_TRUNC('month', COALESCE("transactionDate", "createdAt")), "type" ORDER BY "month" ASC`;
 
     const result = await prisma.$queryRaw<{month: Date, type: string, total: number}[]>(rawQuery);
     return result;
