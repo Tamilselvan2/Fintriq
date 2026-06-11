@@ -68,3 +68,7 @@ Thumbs.db
 
 .agents/
 .cursor/
+
+# Project State
+PROJECT_STATE.md
+PROJECT_STATE.json
