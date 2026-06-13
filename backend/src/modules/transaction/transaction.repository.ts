@@ -36,17 +36,21 @@ export class TransactionRepository {
     take: number;
     type?: TransactionType;
     category?: string;
+    search?: string;
     startDate?: Date;
     endDate?: Date;
     sortBy: 'createdAt' | 'amount';
     sortOrder: 'asc' | 'desc';
   }) {
-    const { orgId, cursor, take, type, category, startDate, endDate, sortBy, sortOrder } = params;
+    const { orgId, cursor, take, type, category, search, startDate, endDate, sortBy, sortOrder } = params;
+
+    const trimmedSearch = search?.trim();
 
     const where: Prisma.TransactionWhereInput = {
       orgId,
       ...(type && { type }),
       ...(category && { category }),
+      ...(trimmedSearch && { description: { contains: trimmedSearch, mode: 'insensitive' } }),
       ...(startDate || endDate ? {
         OR: [
           {

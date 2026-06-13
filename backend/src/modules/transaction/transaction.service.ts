@@ -76,15 +76,22 @@ export class TransactionService {
     limit?: number;
     type?: TransactionType;
     category?: string;
+    search?: string;
     startDate?: string;
     endDate?: string;
     sortBy?: 'createdAt' | 'amount';
     sortOrder?: 'asc' | 'desc';
   }) {
     const limit = Number(params.limit) || 10;
-
     const sortBy = params.sortBy === 'amount' ? 'amount' : 'createdAt';
     const sortOrder = params.sortOrder === 'asc' ? 'asc' : 'desc';
+
+    const parsedStart = params.startDate ? new Date(params.startDate) : undefined;
+    const parsedEnd = params.endDate ? new Date(params.endDate) : undefined;
+    
+    if (parsedEnd) {
+      parsedEnd.setUTCHours(23, 59, 59, 999);
+    }
 
     const result = await this.repository.findMany({
       orgId: params.orgId,
@@ -92,8 +99,9 @@ export class TransactionService {
       take: limit,
       type: params.type,
       category: params.category,
-      startDate: params.startDate ? new Date(params.startDate) : undefined,
-      endDate: params.endDate ? new Date(params.endDate) : undefined,
+      search: params.search,
+      startDate: parsedStart,
+      endDate: parsedEnd,
       sortBy,
       sortOrder,
     });
@@ -146,10 +154,10 @@ export class TransactionService {
     if (filters.type) where.type = filters.type;
     if (filters.category) where.category = filters.category;
     if (filters.search) {
-      where.OR = [
-        { description: { contains: filters.search, mode: 'insensitive' } },
-        { category: { contains: filters.search, mode: 'insensitive' } },
-      ];
+      const trimmedSearch = filters.search.trim();
+      if (trimmedSearch) {
+        where.description = { contains: trimmedSearch, mode: 'insensitive' };
+      }
     }
     if (filters.startDate || filters.endDate) {
       where.OR = [

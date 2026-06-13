@@ -30,6 +30,6 @@ export const listTransactionsQuerySchema = z.object({
   category: z.string().optional(),
   sortBy: z.enum(['createdAt', 'amount']).optional().default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
-  startDate: z.string().datetime().optional(),
-  endDate: z.string().datetime().optional(),
+  startDate: z.string().refine(val => !isNaN(Date.parse(val)), 'Invalid date format').optional(),
+  endDate: z.string().refine(val => !isNaN(Date.parse(val)), 'Invalid date format').optional(),
 });

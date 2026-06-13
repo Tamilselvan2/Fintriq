@@ -14,6 +14,9 @@ import { toast } from 'sonner';
 import api from '@/lib/api';
 import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 import { Spinner } from '@/components/ui/spinner';
+import { Badge } from '@/components/ui/badge';
+import { X } from 'lucide-react';
+import { format } from 'date-fns';
 
 function TransactionsPageInner() {
   const router = useRouter();
@@ -25,6 +28,8 @@ function TransactionsPageInner() {
   const type = (searchParams.get('type') as 'INCOME' | 'EXPENSE' | '') || '';
   const category = searchParams.get('category') || '';
   const search = searchParams.get('search') || '';
+  const startDate = searchParams.get('startDate') || '';
+  const endDate = searchParams.get('endDate') || '';
 
   // cursor history stack for "Previous" navigation
   const [cursorStack, setCursorStack] = useState<string[]>([]);
@@ -41,6 +46,8 @@ function TransactionsPageInner() {
     type: type || undefined,
     category: category || undefined,
     search: search || undefined,
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
   });
 
   const deleteMutation = useDeleteTransaction();
@@ -58,11 +65,21 @@ function TransactionsPageInner() {
     router.push(`${pathname}?${params.toString()}`);
   }, [searchParams, pathname, router]);
 
-  const handleFilterChange = useCallback((filters: { search?: string; type?: string; category?: string }) => {
+  const handleFilterChange = useCallback((filters: { search?: string; type?: string; category?: string; startDate?: string; endDate?: string }) => {
     // reset cursor when filters change
     setCursorStack([]);
     updateParams({ ...filters, cursor: undefined });
   }, [updateParams]);
+
+  const removeFilter = (key: string) => {
+    setCursorStack([]);
+    updateParams({ [key]: undefined, cursor: undefined });
+  };
+
+  const clearAllFilters = () => {
+    setCursorStack([]);
+    updateParams({ search: undefined, type: undefined, category: undefined, startDate: undefined, endDate: undefined, cursor: undefined });
+  };
 
   const handleNextPage = () => {
     if (!data?.meta.nextCursor) return;
@@ -181,8 +198,53 @@ function TransactionsPageInner() {
         initialSearch={search}
         initialType={type}
         initialCategory={category}
+        initialStartDate={startDate}
+        initialEndDate={endDate}
         onFilterChange={handleFilterChange}
       />
+
+      {/* Active Filters */}
+      {(search || type || category || startDate || endDate) && (
+        <div className="flex flex-wrap items-center gap-2 mt-4 mb-2 animate-in fade-in duration-300">
+          <span className="text-sm text-slate-500 font-medium mr-1">Active Filters:</span>
+          {search && (
+            <Badge variant="secondary" className="px-3 py-1 flex items-center gap-1.5 text-sm">
+              Search: {search}
+              <button onClick={() => removeFilter('search')} className="hover:text-slate-900 dark:hover:text-white rounded-full p-0.5"><X size={14} /></button>
+            </Badge>
+          )}
+          {type && (
+            <Badge variant="secondary" className="px-3 py-1 flex items-center gap-1.5 text-sm">
+              Type: {type}
+              <button onClick={() => removeFilter('type')} className="hover:text-slate-900 dark:hover:text-white rounded-full p-0.5"><X size={14} /></button>
+            </Badge>
+          )}
+          {category && (
+            <Badge variant="secondary" className="px-3 py-1 flex items-center gap-1.5 text-sm">
+              Category: {category}
+              <button onClick={() => removeFilter('category')} className="hover:text-slate-900 dark:hover:text-white rounded-full p-0.5"><X size={14} /></button>
+            </Badge>
+          )}
+          {startDate && (
+            <Badge variant="secondary" className="px-3 py-1 flex items-center gap-1.5 text-sm">
+              From: {format(new Date(startDate), "MMM dd, yyyy")}
+              <button onClick={() => removeFilter('startDate')} className="hover:text-slate-900 dark:hover:text-white rounded-full p-0.5"><X size={14} /></button>
+            </Badge>
+          )}
+          {endDate && (
+            <Badge variant="secondary" className="px-3 py-1 flex items-center gap-1.5 text-sm">
+              To: {format(new Date(endDate), "MMM dd, yyyy")}
+              <button onClick={() => removeFilter('endDate')} className="hover:text-slate-900 dark:hover:text-white rounded-full p-0.5"><X size={14} /></button>
+            </Badge>
+          )}
+          <button 
+            onClick={clearAllFilters}
+            className="text-sm font-medium text-brand-blue hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 ml-2 transition-colors"
+          >
+            Clear All
+          </button>
+        </div>
+      )}
 
       <div className={`bg-white dark:bg-slate-950 border border-border rounded-2xl shadow-sm overflow-hidden flex flex-col transition-opacity duration-300 ${isFetching && !isLoading ? 'opacity-60 pointer-events-none' : 'opacity-100'}`}>
         <TransactionTable
