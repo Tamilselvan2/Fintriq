@@ -5,9 +5,22 @@ import { Providers } from './providers';
 
 const inter = Inter({ subsets: ['latin'] });
 
+export const viewport = {
+  themeColor: '#020817',
+};
+
 export const metadata: Metadata = {
   title: 'Fintriq | Financial Dashboard',
   description: 'Financial clarity for modern teams.',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    title: 'Fintriq',
+    statusBarStyle: 'default',
+    capable: true,
+  },
+  icons: {
+    apple: '/icons/icon-180x180.png',
+  },
 };
 
 export default function RootLayout({
