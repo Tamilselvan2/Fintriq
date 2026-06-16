@@ -13,10 +13,11 @@
     "types": ["jest", "node"]
   },
   "include": [
-    "src",
-    "tests"
+    "src/**/*"
   ],
   "exclude": [
+    "tests",
+    "tests_integration_deferred",
     "node_modules",
     "dist"
   ]
