@@ -66,7 +66,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Rate limiting
-app.use('/api', apiLimiter);
+if (process.env.NODE_ENV !== 'test') {
+  app.use('/api', apiLimiter);
+}
 
 app.get('/api', (req, res) => {
   res.status(200).json({
