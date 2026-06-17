@@ -8,9 +8,13 @@ import { RecentActivity } from '@/components/dashboard/recent-activity';
 import { Wallet, TrendingUp, TrendingDown, PiggyBank } from 'lucide-react';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { DashboardSkeleton } from '@/components/skeletons/dashboard-skeleton';
+import { useState } from 'react';
+import { FloatingAddTransaction } from '@/components/transactions/floating-add-transaction';
+import { TransactionModal } from '@/components/transactions/transaction-modal';
 
 export default function DashboardPage() {
   const { data, isLoading, isError, error } = useDashboard();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <ErrorBoundary>
@@ -112,6 +116,8 @@ export default function DashboardPage() {
       </div>
       </>
       )}
+      <FloatingAddTransaction onClick={() => setIsModalOpen(true)} />
+      <TransactionModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} />
     </div>
     </ErrorBoundary>
   );
