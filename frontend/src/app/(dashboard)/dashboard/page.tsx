@@ -92,6 +92,7 @@ export default function DashboardPage() {
           isCurrency={false} 
           isLoading={isLoading} 
           icon={<PiggyBank size={20} className="text-purple-500" />}
+          subtitle="All-time recorded"
         />
       </div>
 

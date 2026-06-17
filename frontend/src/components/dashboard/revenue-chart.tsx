@@ -3,6 +3,7 @@
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid, ReferenceLine } from 'recharts';
 import { formatCurrency } from '@/lib/utils';
 import { format, parseISO } from 'date-fns';
+import { useState, useEffect } from 'react';
 
 interface RevenueChartProps {
   data: { month: string; income: number; expense: number }[];
@@ -10,6 +11,14 @@ interface RevenueChartProps {
 }
 
 export function RevenueChart({ data, isLoading }: RevenueChartProps) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile(); // Check immediately
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   if (!data || data.length === 0) {
     return (
@@ -41,19 +50,23 @@ export function RevenueChart({ data, isLoading }: RevenueChartProps) {
       </div>
       <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={formattedData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }} barGap={8}>
+          <BarChart data={formattedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} barGap={8}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.3} />
             <XAxis 
               dataKey="formattedMonth" 
               axisLine={false} 
               tickLine={false} 
-              tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))', fontWeight: 700, letterSpacing: '0.05em' }} 
-              dy={15} 
+              interval={isMobile ? "preserveStartEnd" : 0}
+              tick={{ fontSize: isMobile ? 11 : 12, fill: 'hsl(var(--muted-foreground))', fontWeight: isMobile ? 400 : 500 }} 
+              tickMargin={isMobile ? 16 : 8}
+              minTickGap={isMobile ? 30 : 15}
+              height={isMobile ? 40 : 30}
             />
             <YAxis 
+              width={42}
               axisLine={false} 
               tickLine={false} 
-              tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))', fontWeight: 700 }} 
+              tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))', fontWeight: 500 }} 
               tickFormatter={(value) => {
                 if (value === 0) return '0';
                 const absValue = Math.abs(value);
@@ -61,7 +74,6 @@ export function RevenueChart({ data, isLoading }: RevenueChartProps) {
                 const symbol = formatted.replace(/[0-9.,\s]/g, '');
                 return `${value < 0 ? '-' : ''}${symbol}${absValue >= 1000 ? absValue/1000 + 'k' : absValue}`;
               }} 
-              dx={-10} 
             />
             <Tooltip 
               cursor={{ fill: 'hsl(var(--muted))', opacity: 0.2 }}
