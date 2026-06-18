@@ -105,8 +105,8 @@ Required Backend Environment Variables (`backend/.env`):
 ```env
 DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public
 DIRECT_URL=postgresql://USER:PASSWORD@HOST:PORT/DATABASE
-JWT_SECRET=your_jwt_secret
-JWT_REFRESH_SECRET=your_jwt_refresh_secret
+JWT_SECRET=jwt_secret
+JWT_REFRESH_SECRET=jwt_refresh_secret
 PORT=5000
 FRONTEND_URL=http://localhost:3000
 BREVO_API_KEY=email_brevo_api_key
@@ -154,9 +154,6 @@ NEXT_PUBLIC_APP_NAME=Fintriq
 |-- README.md              # Project documentation
 ```
 
-## Screenshots
-
-*(Screenshots to be added here - Dashboard, Transactions, Settings, etc.)*
 
 ## Future Enhancements
 - Expanded test coverage (Unit and E2E)
