@@ -4,6 +4,7 @@ import { Suspense, useState } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useAuditLogs, AuditLog } from '@/hooks/use-audit';
 import { format } from 'date-fns';
+import { formatCurrency } from '@/lib/utils';
 import { ShieldCheck, Plus, Pencil, Trash2, UserPlus, Loader2 } from 'lucide-react';
 import { Pagination } from '@/components/shared/pagination';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
@@ -38,7 +39,7 @@ function AuditLogRow({ log }: { log: AuditLog }) {
         {log.details && Object.keys(log.details).length > 0 ? (
           <div className="text-xs text-slate-500 dark:text-slate-400 space-y-0.5 max-w-[260px]">
             {log.details.amount !== undefined && (
-              <div><span className="font-semibold">Amount:</span> ${log.details.amount}</div>
+              <div><span className="font-semibold">Amount:</span> {formatCurrency(Number(log.details.amount))}</div>
             )}
             {log.details.type && (
               <div><span className="font-semibold">Type:</span> {log.details.type}</div>
