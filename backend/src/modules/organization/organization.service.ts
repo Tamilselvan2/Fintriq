@@ -21,7 +21,7 @@ export class OrganizationService {
   async getMembers(orgId: string, query: { limit?: number, cursor?: string } = {}) {
     const limit = Number(query.limit) || 20;
     const result = await this.repository.getMembers(orgId, limit, query.cursor);
-    
+
     return {
       data: result.items,
       meta: {
@@ -87,7 +87,7 @@ export class OrganizationService {
     } catch (error) {
       // Rollback the invitation if email fails
       await this.repository.deleteInvitationById(invitation.id, orgId);
-      
+
       if (inviter) {
         await auditService.log({
           orgId,
@@ -98,7 +98,7 @@ export class OrganizationService {
           details: { invitedEmail: email, role, status: 'FAILED_EMAIL' },
         });
       }
-      
+
       throw error;
     }
 

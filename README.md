@@ -56,6 +56,17 @@ The core problem Fintriq solves is enabling small-to-medium teams to collaborati
 - User Activity Tracking (Immutable logs of all CRUD operations)
 - Secure, Admin-only visibility
 
+### Custom Categories
+- Organization-scoped custom categories
+- Soft-delete functionality ensuring historical transaction integrity
+
+### User Experience & Mobile
+- Progressive Web App (PWA) ready for desktop and mobile installation
+- Mobile-first Bottom Navigation Bar and persistent native-feeling headers
+- Global Floating Action Button (FAB) for quick transaction entry
+- Premium dark-mode-first glassmorphism design language
+- Intelligent responsive charts with mobile-only data culling
+
 ### Loading Experience
 - High-fidelity Skeleton Loaders to prevent layout shift
 - Background Fetch Indicators (Subtle updates during filtering and pagination)
@@ -64,8 +75,8 @@ The core problem Fintriq solves is enabling small-to-medium teams to collaborati
 
 | Layer | Technologies |
 | --- | --- |
-| **Frontend** | Next.js 14 App Router, TypeScript, Tailwind CSS, React Query, Shadcn UI, Recharts |
-| **Backend** | Express.js, TypeScript, Prisma ORM, Zod, JWT |
+| **Frontend** | Next.js 14 App Router, TypeScript, Tailwind CSS, React Query, Shadcn UI, Recharts, next-pwa, Jest |
+| **Backend** | Express.js, TypeScript, Prisma ORM, Zod, JWT, Jest |
 | **Database** | PostgreSQL |
 | **Authentication** | HttpOnly refresh cookies, RBAC, Helmet, rate limiting, request validation |
 | **File Storage** | Cloudinary (Profile Pictures) |

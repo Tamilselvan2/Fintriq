@@ -6,15 +6,18 @@ This document outlines the detailed architecture, data flows, and technical deci
 
 ### Frontend
 - **Framework:** Next.js 14 (App Router)
+- **PWA:** next-pwa (Offline support and installability)
 - **State Management:** React Query (Server state), React Context (Local state)
 - **Styling:** Tailwind CSS, Shadcn UI (Accessible, customizable components)
 - **Data Visualization:** Recharts (Responsive, animated financial charts)
+- **Testing:** Jest + React Testing Library (Isolated tsconfig scopes)
 
 ### Backend
 - **Framework:** Express.js
 - **Language:** TypeScript
 - **ORM:** Prisma
 - **Validation:** Zod (Request payload schemas)
+- **Testing:** Jest (Supertest API integration ready)
 
 ### Database
 - **Engine:** PostgreSQL
