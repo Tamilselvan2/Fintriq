@@ -47,15 +47,12 @@ export class OrganizationService {
     // Delete any existing invitations for this email + org combination
     await this.repository.deleteInvitationByEmailAndOrg(email, orgId);
 
-    console.log("[TRACE] Before token generation");
     // Generate token
     const crypto = require('crypto');
     const token = crypto.randomBytes(32).toString('hex');
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-    console.log("[TRACE] After token generation");
 
-    console.log("[TRACE] Before DB insert");
     const invitation = await this.repository.createInvitation(
       email,
       role,
@@ -64,7 +61,6 @@ export class OrganizationService {
       hashedToken,
       expiresAt
     );
-    console.log("[TRACE] After DB insert");
 
     // Audit log
     const { AuditService, AuditActions } = require('../audit/audit.service');
