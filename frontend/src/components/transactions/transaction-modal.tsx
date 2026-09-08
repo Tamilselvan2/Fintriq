@@ -9,6 +9,7 @@ import { useCreateTransaction, useUpdateTransaction } from '@/hooks/use-transact
 import { useCategories, useCreateCategory } from '@/hooks/use-categories';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { Calculator } from './calculator';
 
 interface TransactionModalProps {
   isOpen: boolean;
@@ -116,13 +117,18 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
 
             <div>
               <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Amount ($)</label>
-              <input
-                type="number"
-                step="0.01"
-                {...register('amount', { valueAsNumber: true })}
-                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-border rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 placeholder-slate-400"
-                placeholder="0.00"
-              />
+              <div className="relative">
+                <input
+                  type="number"
+                  step="0.01"
+                  {...register('amount', { valueAsNumber: true })}
+                  className="w-full pl-4 pr-12 py-2.5 bg-slate-50 dark:bg-slate-800 border border-border rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 placeholder-slate-400"
+                  placeholder="0.00"
+                />
+                <div className="absolute right-1 top-1 bottom-1 flex items-center">
+                  <Calculator onUseResult={(val) => setValue('amount', val, { shouldValidate: true, shouldDirty: true })} />
+                </div>
+              </div>
               {errors.amount && <p className="text-brand-rose text-xs mt-1.5 font-medium">{errors.amount.message}</p>}
             </div>
           </div>

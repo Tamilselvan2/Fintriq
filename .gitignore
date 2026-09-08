@@ -16,6 +16,7 @@ build/
 dist/
 generated/
 .vercel/
+*.tsbuildinfo
 
 # OS & System Files
 .DS_Store
@@ -74,3 +75,8 @@ logs/
 # Misc
 tmp/
 temp/
+
+# Impeccable Agent Files
+.impeccable/
+PRODUCT.md
+DESIGN.md
