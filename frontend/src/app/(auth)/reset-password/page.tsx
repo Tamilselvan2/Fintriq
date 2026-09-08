@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/hooks/use-auth';
 import { setAccessToken } from '@/lib/api';
 import { Spinner } from '@/components/ui/spinner';
+import { PasswordInput } from '@/components/ui/password-input';
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -97,27 +98,19 @@ function ResetPasswordForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div>
           <label className="block text-sm font-semibold text-muted-foreground mb-1.5">New Password</label>
-          <div className="relative">
-            <input
-              {...register('password')}
-              type="password"
-              className="w-full px-4 py-2.5 bg-background dark:bg-slate-900/50 border border-border rounded-lg text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-              placeholder="••••••••"
-            />
-          </div>
+          <PasswordInput
+            {...register('password')}
+            placeholder="••••••••"
+          />
           {errors.password && <p className="text-danger text-sm mt-1.5 font-medium animate-in fade-in">{errors.password.message}</p>}
         </div>
 
         <div>
           <label className="block text-sm font-semibold text-muted-foreground mb-1.5">Confirm New Password</label>
-          <div className="relative">
-            <input
-              {...register('confirmPassword')}
-              type="password"
-              className="w-full px-4 py-2.5 bg-background dark:bg-slate-900/50 border border-border rounded-lg text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-              placeholder="••••••••"
-            />
-          </div>
+          <PasswordInput
+            {...register('confirmPassword')}
+            placeholder="••••••••"
+          />
           {errors.confirmPassword && <p className="text-danger text-sm mt-1.5 font-medium animate-in fade-in">{errors.confirmPassword.message}</p>}
         </div>
 

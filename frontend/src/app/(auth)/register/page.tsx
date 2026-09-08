@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { Spinner } from '@/components/ui/spinner';
 import { authApi } from '@/lib/auth-api';
 import { useRouter } from 'next/navigation';
+import { PasswordInput } from '@/components/ui/password-input';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -79,10 +80,8 @@ export default function RegisterPage() {
 
         <div>
           <label className="block text-sm font-semibold text-muted-foreground mb-1.5">Password</label>
-          <input
+          <PasswordInput
             {...register('password')}
-            type="password"
-            className="w-full px-4 py-2.5 bg-background dark:bg-slate-900/50 border border-border rounded-lg text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
             placeholder="••••••••"
           />
           {passwordVal && (
@@ -100,10 +99,8 @@ export default function RegisterPage() {
 
         <div>
           <label className="block text-sm font-semibold text-muted-foreground mb-1.5">Confirm Password</label>
-          <input
+          <PasswordInput
             {...register('confirmPassword')}
-            type="password"
-            className="w-full px-4 py-2.5 bg-background dark:bg-slate-900/50 border border-border rounded-lg text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
             placeholder="••••••••"
           />
           {errors.confirmPassword && <p className="text-danger text-sm mt-1.5 font-medium animate-in fade-in">{errors.confirmPassword.message}</p>}

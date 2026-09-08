@@ -9,6 +9,7 @@ import { authApi } from '@/lib/auth-api';
 import { toast } from 'sonner';
 import { Building2, ArrowRight } from 'lucide-react';
 import { Suspense } from 'react';
+import { PasswordInput } from '@/components/ui/password-input';
 
 const acceptInvitationSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').trim(),
@@ -94,10 +95,9 @@ function AcceptInvitationInner() {
 
             <div>
               <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Password</label>
-              <input
-                type="password"
+              <PasswordInput
                 {...register('password')}
-                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-blue/50"
+                className="bg-slate-50 dark:bg-slate-800"
                 placeholder="••••••••"
               />
               {errors.password && <p className="text-brand-rose text-xs mt-1.5 font-medium">{errors.password.message}</p>}
@@ -105,10 +105,9 @@ function AcceptInvitationInner() {
 
             <div>
               <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Confirm Password</label>
-              <input
-                type="password"
+              <PasswordInput
                 {...register('confirmPassword')}
-                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-blue/50"
+                className="bg-slate-50 dark:bg-slate-800"
                 placeholder="••••••••"
               />
               {errors.confirmPassword && <p className="text-brand-rose text-xs mt-1.5 font-medium">{errors.confirmPassword.message}</p>}
