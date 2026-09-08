@@ -6,9 +6,9 @@
   "background_color": "#020817",
   "display": "standalone",
   "orientation": "portrait",
-  "start_url": "/",
-  "id": "/",
-  "scope": "/",
+  "start_url": "/dashboard",
+  "id": "/dashboard",
+  "scope": "/dashboard",
   "icons": [
     {
       "src": "/icons/icon-192x192.png",
