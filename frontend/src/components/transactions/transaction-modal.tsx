@@ -7,10 +7,13 @@ import { transactionSchema, TransactionInput } from '@/lib/validations/transacti
 import { Transaction } from '@/types/models';
 import { useCreateTransaction, useUpdateTransaction } from '@/hooks/use-transactions';
 import { useCategories, useCreateCategory } from '@/hooks/use-categories';
-import { useEffect, useState } from 'react';
+import { useCategoryPresets } from '@/hooks/use-presets';
+import { useEffect, useState, useMemo } from 'react';
 import { toast } from 'sonner';
 import { Calculator } from './calculator';
+import { Minus, Plus } from 'lucide-react';
 import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface TransactionModalProps {
   isOpen: boolean;
@@ -25,7 +28,7 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
   const updateMutation = useUpdateTransaction();
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<TransactionInput>({
+  const { register, handleSubmit, reset, setValue, watch, getValues, formState: { errors } } = useForm<TransactionInput>({
     resolver: zodResolver(transactionSchema),
     defaultValues: { type: 'EXPENSE', amount: 0, category: '', description: '', transactionDate: '' }
   });
@@ -35,6 +38,89 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
   
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
+
+  const selectedType = watch('type');
+  const selectedCategoryName = watch('category');
+  const hasDate = watch('transactionDate');
+  const selectedCategory = useMemo(() => categories.find(c => c.name === selectedCategoryName), [categories, selectedCategoryName]);
+  
+  const { data: presets = [] } = useCategoryPresets(selectedType === 'EXPENSE' ? selectedCategory?.id : undefined);
+  const [presetQuantities, setPresetQuantities] = useState<Record<string, number>>({});
+  const [hasParsedInitial, setHasParsedInitial] = useState(false);
+
+  useEffect(() => {
+    setPresetQuantities({});
+    setHasParsedInitial(false);
+  }, [selectedCategoryName, selectedType]);
+
+  useEffect(() => {
+    if (isOpen && transaction && presets.length > 0 && !hasParsedInitial) {
+      const initialQuantities: Record<string, number> = {};
+      const desc = transaction.description || '';
+      
+      presets.forEach(p => {
+        const safeName = p.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(\\d+)x\\s+${safeName}`, 'i');
+        const match = desc.match(regex);
+        if (match) {
+           initialQuantities[p.id] = parseInt(match[1], 10);
+        }
+      });
+      
+      setPresetQuantities(initialQuantities);
+      setHasParsedInitial(true);
+    }
+  }, [isOpen, transaction, presets, hasParsedInitial]);
+
+  const updatePresetQuantity = (itemId: string, delta: number) => {
+    const currentQty = presetQuantities[itemId] || 0;
+    const newQty = Math.max(0, currentQty + delta);
+    
+    const newQuantities = { ...presetQuantities, [itemId]: newQty };
+    setPresetQuantities(newQuantities);
+
+    let oldAmount = 0;
+    let newAmount = 0;
+    const newItemsList: string[] = [];
+    
+    presets.forEach(p => {
+      const oldQty = presetQuantities[p.id] || 0;
+      const newQtyLocal = p.id === itemId ? newQty : oldQty;
+      
+      if (oldQty > 0) {
+        oldAmount += oldQty * Number(p.price);
+      }
+      if (newQtyLocal > 0) {
+        newAmount += newQtyLocal * Number(p.price);
+        newItemsList.push(`${newQtyLocal}x ${p.name}`);
+      }
+    });
+
+    const amountDelta = newAmount - oldAmount;
+    const currentFormAmount = Number(getValues('amount')) || 0;
+    const nextFormAmount = Math.max(0, currentFormAmount + amountDelta);
+
+    setValue('amount', Number(nextFormAmount.toFixed(2)), { shouldValidate: true, shouldDirty: true });
+    
+    // Use zero-width spaces to invisibly tag our auto-generated string
+    const ZWS = '\u200B';
+    const newPresetStr = newItemsList.length > 0 ? `${ZWS}${newItemsList.join(', ')}${ZWS}` : '';
+    let currentDesc = getValues('description') || '';
+    
+    // Strip out the previous auto-generated string perfectly every time
+    currentDesc = currentDesc.replace(/\u200B.*?\u200B\n?/g, '');
+    
+    // Also clean up legacy formats from earlier versions if they exist
+    currentDesc = currentDesc.replace(/Purchased: .*?(?:\n|$)/g, '');
+    currentDesc = currentDesc.trim();
+    
+    // Append the new one
+    if (newPresetStr) {
+      currentDesc = currentDesc ? `${currentDesc}\n${newPresetStr}` : newPresetStr;
+    }
+    
+    setValue('description', currentDesc, { shouldValidate: true, shouldDirty: true });
+  };
 
   const handleCreateCategory = async () => {
     if (!newCategoryName.trim()) return;
@@ -98,7 +184,7 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>{isEditMode ? 'Edit Transaction' : 'New Transaction'}</DialogTitle>
         </DialogHeader>
@@ -128,7 +214,10 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
                   placeholder="0.00"
                 />
                 <div className="absolute right-1 top-1 bottom-1 flex items-center">
-                  <Calculator onUseResult={(val) => setValue('amount', val, { shouldValidate: true, shouldDirty: true })} />
+                  <Calculator 
+                    initialValue={watch('amount')}
+                    onUseResult={(val) => setValue('amount', val, { shouldValidate: true, shouldDirty: true })} 
+                  />
                 </div>
               </div>
               {errors.amount && <p className="text-brand-rose text-xs mt-1.5 font-medium">{errors.amount.message}</p>}
@@ -192,7 +281,44 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
             {errors.category && !isCreatingCategory && <p className="text-brand-rose text-xs mt-1.5 font-medium">{errors.category.message}</p>}
           </div>
 
-
+          {presets.length > 0 && selectedType === 'EXPENSE' && (
+            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-brand-blue/20">
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 text-brand-blue flex items-center gap-2">
+                Purchase Presets
+              </label>
+              <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                {presets.map(item => {
+                  const qty = presetQuantities[item.id] || 0;
+                  return (
+                    <div key={item.id} className="flex items-center justify-between bg-white dark:bg-slate-950 p-2.5 rounded-lg border border-border">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-slate-900 dark:text-white">{item.name}</span>
+                        <span className="text-xs font-semibold text-slate-500">${Number(item.price).toFixed(2)}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button 
+                          type="button" 
+                          onClick={() => updatePresetQuantity(item.id, -1)}
+                          disabled={qty === 0}
+                          className="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 hover:bg-slate-200 disabled:opacity-50 transition-colors"
+                        >
+                          <Minus size={14} />
+                        </button>
+                        <span className="w-4 text-center text-sm font-bold">{qty}</span>
+                        <button 
+                          type="button" 
+                          onClick={() => updatePresetQuantity(item.id, 1)}
+                          className="w-7 h-7 rounded-full bg-brand-blue/10 flex items-center justify-center text-brand-blue hover:bg-brand-blue/20 transition-colors"
+                        >
+                          <Plus size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Description <span className="text-slate-400 font-normal">(Optional)</span></label>
@@ -209,8 +335,10 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
             <input
               type="datetime-local"
               {...register('transactionDate')}
-              className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-border rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 placeholder-slate-400"
-              placeholder="Leave blank to use today's date"
+              className={cn(
+                "w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-blue/50",
+                hasDate ? "text-slate-900 dark:text-slate-100" : "text-slate-400 dark:text-slate-500"
+              )}
             />
             {errors.transactionDate && <p className="text-brand-rose text-xs mt-1.5 font-medium">{errors.transactionDate.message}</p>}
           </div>

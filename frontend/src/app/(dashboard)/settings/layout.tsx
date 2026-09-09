@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { User, Building, Shield, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { User, Building, Shield, SlidersHorizontal, ChevronDown, Tags } from 'lucide-react';
 import { SidebarNav } from './components/sidebar-nav';
 import { useRouter, usePathname } from 'next/navigation';
 
@@ -25,6 +25,11 @@ const sidebarNavItems = [
     title: 'Preferences',
     href: '/settings/preferences',
     icon: SlidersHorizontal,
+  },
+  {
+    title: 'Purchase Presets',
+    href: '/settings/purchase-presets',
+    icon: Tags,
   },
 ];
 

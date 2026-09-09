@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/hooks/use-auth';
 import { usePathname } from 'next/navigation';
-import { User as UserIcon, Building, Shield, Sliders, LogOut } from 'lucide-react';
+import { User as UserIcon, Building, Shield, Sliders, LogOut, Tags } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 
@@ -88,6 +88,11 @@ export function Header() {
                 <Link href="/settings/preferences" className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors" onClick={() => setIsDropdownOpen(false)}>
                   <Sliders size={16} /> Preferences
                 </Link>
+                {user?.role === 'ADMIN' && (
+                  <Link href="/settings/purchase-presets" className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors" onClick={() => setIsDropdownOpen(false)}>
+                    <Tags size={16} /> Purchase Presets
+                  </Link>
+                )}
                 <Link href="/settings/security" className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors" onClick={() => setIsDropdownOpen(false)}>
                   <Shield size={16} /> Security
                 </Link>

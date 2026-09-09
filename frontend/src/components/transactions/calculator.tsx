@@ -9,10 +9,11 @@ import { cn } from '@/lib/utils';
 
 interface CalculatorProps {
   onUseResult: (result: number) => void;
+  initialValue?: number;
   className?: string;
 }
 
-export function Calculator({ onUseResult, className }: CalculatorProps) {
+export function Calculator({ onUseResult, initialValue, className }: CalculatorProps) {
   const [expression, setExpression] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const displayRef = useRef<HTMLDivElement>(null);
@@ -66,11 +67,18 @@ export function Calculator({ onUseResult, className }: CalculatorProps) {
     }
   };
 
-  // Reset state when closed
+  // Initialize state when opened, reset when closed
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      if (initialValue && initialValue > 0) {
+        setExpression(initialValue.toString());
+      } else {
+        setExpression('');
+      }
+    } else {
       setExpression('');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   return (

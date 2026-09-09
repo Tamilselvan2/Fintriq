@@ -18,6 +18,7 @@ model Organization {
   users        User[]
   invitations  InvitationToken[]
   categories   Category[]
+  presetItems  PurchasePresetItem[]
 }
 
 model Transaction {
@@ -137,7 +138,25 @@ model Category {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  presetItems  PurchasePresetItem[]
 
   @@unique([orgId, name])
+  @@index([orgId])
+}
+
+model PurchasePresetItem {
+  id           String   @id @default(uuid())
+  categoryId   String
+  orgId        String
+  name         String
+  price        Decimal  @db.Decimal(18, 4)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  category     Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  
+  @@index([categoryId])
   @@index([orgId])
 }

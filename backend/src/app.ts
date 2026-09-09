@@ -11,6 +11,7 @@ import dashboardRoutes from './modules/dashboard/dashboard.routes';
 import organizationRoutes from './modules/organization/organization.routes';
 import auditRoutes from './modules/audit/audit.routes';
 import categoryRoutes from './modules/category/category.routes';
+import presetRoutes from './modules/preset/preset.routes';
 
 const app = express();
 const API_VERSION = process.env.npm_package_version || '1.0.0';
@@ -124,6 +125,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/organizations', organizationRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/presets', presetRoutes);
 
 // Error Handling Middleware
 app.use(errorHandler);
