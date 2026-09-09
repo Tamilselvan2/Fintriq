@@ -12,7 +12,7 @@ export interface AuditLog {
   details: Record<string, any> | null;
   ipAddress: string | null;
   createdAt: string;
-  user: { email: string; role: string };
+  user: { email: string; role: string; name: string | null };
 }
 
 interface AuditLogsResponse {

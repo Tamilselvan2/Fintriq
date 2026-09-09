@@ -5,7 +5,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useAuditLogs, AuditLog } from '@/hooks/use-audit';
 import { format } from 'date-fns';
 import { formatCurrency } from '@/lib/utils';
-import { ShieldCheck, Plus, Pencil, Trash2, UserPlus, Loader2 } from 'lucide-react';
+import { ShieldCheck, Plus, Pencil, Trash2, UserPlus, Loader2, ChevronDown } from 'lucide-react';
 import { Pagination } from '@/components/shared/pagination';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { AuditLogSkeleton } from '@/components/skeletons/audit-log-skeleton';
@@ -73,6 +73,7 @@ function AuditLogPageInner() {
 
   const [cursorStack, setCursorStack] = useState<string[]>([]);
   const currentPage = cursorStack.length + 1;
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const { data, isLoading, isFetching, isError, error } = useAuditLogs({ cursor, limit, action: action || undefined });
 
@@ -165,24 +166,51 @@ function AuditLogPageInner() {
             <div className="md:hidden divide-y divide-border">
               {data.data.map(log => {
                 const action = ACTION_LABELS[log.action] ?? { label: log.action, icon: <ShieldCheck size={14} />, color: 'text-slate-500 bg-slate-100' };
+                const isExpanded = expandedId === log.id;
+                
                 return (
-                  <div key={log.id} className="p-4 flex flex-col gap-3">
+                  <div 
+                    key={log.id} 
+                    className="p-4 flex flex-col gap-3 cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/50"
+                    onClick={() => setExpandedId(isExpanded ? null : log.id)}
+                  >
                     <div className="flex justify-between items-start gap-2">
                       <div className="min-w-0 flex-1">
-                        <div className="text-sm font-semibold text-slate-900 dark:text-white truncate">{log.userEmail}</div>
+                        <div className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+                          {log.user?.name || log.userEmail.split('@')[0]}
+                        </div>
                         <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{format(new Date(log.createdAt), 'MMM dd, yyyy HH:mm:ss')}</div>
                       </div>
-                      <span className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold ${action.color}`}>
-                        {action.icon}
-                        {action.label}
-                      </span>
+                      <div className="shrink-0 flex items-center gap-2">
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold ${action.color}`}>
+                          {action.icon}
+                          {action.label}
+                        </span>
+                        <ChevronDown size={18} className={`text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                      </div>
                     </div>
-                    {log.details && Object.keys(log.details).length > 0 && (
-                      <div className="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg text-xs text-slate-600 dark:text-slate-300 space-y-1">
-                        {log.details.amount !== undefined && <div><span className="font-semibold text-slate-900 dark:text-white">Amount:</span> {formatCurrency(Number(log.details.amount))}</div>}
-                        {log.details.type && <div><span className="font-semibold text-slate-900 dark:text-white">Type:</span> {log.details.type}</div>}
-                        {log.details.category && <div><span className="font-semibold text-slate-900 dark:text-white">Category:</span> {log.details.category}</div>}
-                        {log.details.description && <div className="truncate"><span className="font-semibold text-slate-900 dark:text-white">Desc:</span> {log.details.description}</div>}
+                    {isExpanded && (
+                      <div className="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg text-xs text-slate-600 dark:text-slate-300 space-y-1 mt-1 animate-in slide-in-from-top-1 fade-in duration-200">
+                        <div className="mb-2 pb-2 border-b border-border/50">
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1.5 sm:gap-2">
+                            <div className="break-all"><span className="font-semibold text-slate-900 dark:text-white">Email:</span> {log.userEmail}</div>
+                            {log.user?.role && (
+                              <div className="self-start sm:self-auto">
+                                <span className="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-[10px] font-bold uppercase">{log.user.role}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        {log.details && Object.keys(log.details).length > 0 ? (
+                          <>
+                            {log.details.amount !== undefined && <div><span className="font-semibold text-slate-900 dark:text-white">Amount:</span> {formatCurrency(Number(log.details.amount))}</div>}
+                            {log.details.type && <div><span className="font-semibold text-slate-900 dark:text-white">Type:</span> {log.details.type}</div>}
+                            {log.details.category && <div><span className="font-semibold text-slate-900 dark:text-white">Category:</span> {log.details.category}</div>}
+                            {log.details.description && <div><span className="font-semibold text-slate-900 dark:text-white">Desc:</span> {log.details.description}</div>}
+                          </>
+                        ) : (
+                          <div className="text-slate-400 italic">No additional details</div>
+                        )}
                       </div>
                     )}
                   </div>

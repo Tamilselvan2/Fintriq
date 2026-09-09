@@ -46,7 +46,7 @@ export class AuditRepository {
       ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
       orderBy: { createdAt: 'desc' },
       include: {
-        user: { select: { email: true, role: true } },
+        user: { select: { email: true, role: true, name: true } },
       },
     });
 
