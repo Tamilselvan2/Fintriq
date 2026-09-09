@@ -92,7 +92,7 @@ export default function ProfileSettingsPage() {
           {/* Avatar Section */}
           <div className="flex flex-col sm:flex-row items-center gap-6">
             <div className="relative group">
-              <div className="w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-black shadow-xl ring-4 ring-white dark:ring-slate-900 transition-all overflow-hidden bg-gradient-to-tr from-brand-blue to-emerald-400">
+              <div className="w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-black shadow-sm ring-1 ring-border transition-all overflow-hidden bg-brand-blue">
                 {user.profileImageUrl ? (
                   <img src={user.profileImageUrl} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
@@ -161,7 +161,7 @@ export default function ProfileSettingsPage() {
 
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Email Address</label>
-              <div className="flex items-center gap-3 p-3.5 bg-slate-50 dark:bg-slate-900/50 border border-border rounded-xl">
+              <div className="flex items-center gap-3 py-3 border-b border-border">
                 <Mail size={18} className="text-brand-blue" />
                 <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{user.email}</span>
               </div>
@@ -169,7 +169,7 @@ export default function ProfileSettingsPage() {
 
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Account Role</label>
-              <div className="flex items-center gap-3 p-3.5 bg-slate-50 dark:bg-slate-900/50 border border-border rounded-xl">
+              <div className="flex items-center gap-3 py-3 border-b border-border">
                 <Shield size={18} className="text-emerald-500" />
                 <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{user.role}</span>
               </div>
@@ -177,7 +177,7 @@ export default function ProfileSettingsPage() {
 
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Organization ID</label>
-              <div className="flex items-center gap-3 p-3.5 bg-slate-50 dark:bg-slate-900/50 border border-border rounded-xl">
+              <div className="flex items-center gap-3 py-3 border-b border-border">
                 <Building2 size={18} className="text-slate-400" />
                 <span className="text-sm font-mono text-slate-500">{user.orgId}</span>
               </div>

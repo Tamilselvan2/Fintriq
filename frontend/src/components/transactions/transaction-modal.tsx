@@ -56,7 +56,7 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
           amount: transaction.amount,
           category: transaction.category,
           description: transaction.description || '',
-          transactionDate: transaction.transactionDate ? transaction.transactionDate.substring(0, 10) : '',
+          transactionDate: transaction.transactionDate ? format(new Date(transaction.transactionDate), "yyyy-MM-dd'T'HH:mm") : '',
         });
       } else {
         reset({ type: 'EXPENSE', amount: 0, category: '', description: '', transactionDate: '' });
@@ -71,6 +71,7 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
       const formattedData = {
         ...data,
         type: data.type as Transaction['type'],
+        transactionDate: data.transactionDate ? new Date(data.transactionDate).toISOString() : data.transactionDate,
       };
 
       if (isEditMode && transaction) {
@@ -203,9 +204,9 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Transaction Date <span className="text-slate-400 font-normal">(Optional)</span></label>
+            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Transaction Date & Time <span className="text-slate-400 font-normal">(Optional)</span></label>
             <input
-              type="date"
+              type="datetime-local"
               {...register('transactionDate')}
               className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-border rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 placeholder-slate-400"
               placeholder="Leave blank to use today's date"

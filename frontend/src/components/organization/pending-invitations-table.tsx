@@ -52,7 +52,61 @@ export function PendingInvitationsTable() {
         )}
       </div>
       <div className={`bg-white dark:bg-slate-950 border border-border rounded-2xl shadow-sm overflow-hidden transition-opacity duration-300 ${isFetching && !isLoading ? 'opacity-60 pointer-events-none' : 'opacity-100'}`}>
-        <div className="overflow-x-auto">
+        
+        {/* Mobile Card List View */}
+        <div className="md:hidden divide-y divide-border">
+          {invitations.map((invitation) => (
+            <div key={invitation.id} className="p-4 flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 border border-border">
+                  <Mail size={18} className="text-slate-400" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-slate-900 dark:text-white truncate">
+                    {invitation.email}
+                  </p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Sent {new Date(invitation.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5">
+                    <Shield size={14} className="text-slate-400" />
+                    <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                      {invitation.role}
+                    </span>
+                  </div>
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
+                    <Clock size={10} />
+                    Pending
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleResend(invitation.id)}
+                  disabled={resendingId === invitation.id}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-brand-blue hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-transparent hover:border-blue-200 dark:hover:border-blue-500/20"
+                >
+                  {resendingId === invitation.id ? (
+                    <>
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      Sending
+                    </>
+                  ) : (
+                    <>
+                      <Send size={14} />
+                      Resend
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-border">
@@ -65,10 +119,10 @@ export function PendingInvitationsTable() {
             </thead>
             <tbody className="divide-y divide-border">
               {invitations.map((invitation) => (
-                <tr key={invitation.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
+                <tr key={invitation.id} className="hover:bg-slate-50/50 dark:bg-slate-900/50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 border border-border">
                         <Mail size={18} className="text-slate-400" />
                       </div>
                       <div className="font-medium text-slate-900 dark:text-white truncate max-w-[200px]">
@@ -98,7 +152,7 @@ export function PendingInvitationsTable() {
                       <button
                         onClick={() => handleResend(invitation.id)}
                         disabled={resendingId === invitation.id}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-brand-blue hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Resend Invitation"
                       >
                         {resendingId === invitation.id ? (

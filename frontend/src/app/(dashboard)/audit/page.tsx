@@ -160,21 +160,53 @@ function AuditLogPageInner() {
             className="min-h-[400px]"
           />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[900px]">
-              <thead>
-                <tr className="bg-slate-50 dark:bg-slate-900 border-b border-border text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  <th className="px-6 py-4">Actor</th>
-                  <th className="px-6 py-4">Action</th>
-                  <th className="px-6 py-4">Details</th>
-                  <th className="px-6 py-4">Timestamp</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.data.map(log => <AuditLogRow key={log.id} log={log} />)}
-              </tbody>
-            </table>
-          </div>
+          <>
+            {/* Mobile Card List View */}
+            <div className="md:hidden divide-y divide-border">
+              {data.data.map(log => {
+                const action = ACTION_LABELS[log.action] ?? { label: log.action, icon: <ShieldCheck size={14} />, color: 'text-slate-500 bg-slate-100' };
+                return (
+                  <div key={log.id} className="p-4 flex flex-col gap-3">
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-semibold text-slate-900 dark:text-white truncate">{log.userEmail}</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{format(new Date(log.createdAt), 'MMM dd, yyyy HH:mm:ss')}</div>
+                      </div>
+                      <span className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold ${action.color}`}>
+                        {action.icon}
+                        {action.label}
+                      </span>
+                    </div>
+                    {log.details && Object.keys(log.details).length > 0 && (
+                      <div className="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg text-xs text-slate-600 dark:text-slate-300 space-y-1">
+                        {log.details.amount !== undefined && <div><span className="font-semibold text-slate-900 dark:text-white">Amount:</span> {formatCurrency(Number(log.details.amount))}</div>}
+                        {log.details.type && <div><span className="font-semibold text-slate-900 dark:text-white">Type:</span> {log.details.type}</div>}
+                        {log.details.category && <div><span className="font-semibold text-slate-900 dark:text-white">Category:</span> {log.details.category}</div>}
+                        {log.details.description && <div className="truncate"><span className="font-semibold text-slate-900 dark:text-white">Desc:</span> {log.details.description}</div>}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[900px]">
+                <thead>
+                  <tr className="bg-slate-50 dark:bg-slate-900 border-b border-border text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <th className="px-6 py-4">Actor</th>
+                    <th className="px-6 py-4">Action</th>
+                    <th className="px-6 py-4">Details</th>
+                    <th className="px-6 py-4">Timestamp</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.data.map(log => <AuditLogRow key={log.id} log={log} />)}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
 
         {/* Pagination */}

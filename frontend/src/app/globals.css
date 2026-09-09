@@ -87,16 +87,7 @@
 
   /* Premium CTA Button Styles */
   .btn-primary {
-    @apply relative overflow-hidden bg-gradient-to-br from-[#2563eb] via-[#3b82f6] to-[#10b981] text-white font-black tracking-tight rounded-xl shadow-[0_8px_20px_rgba(37,99,235,0.25)] transition-all duration-300 hover:shadow-[0_12px_25px_rgba(37,99,235,0.4)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98];
-  }
-  
-  .btn-primary::after {
-    content: '';
-    @apply absolute inset-0 bg-white/10 opacity-0 transition-opacity duration-300 hover:opacity-100;
-  }
-
-  .btn-glow {
-    @apply shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:shadow-[0_0_25px_rgba(59,130,246,0.5)];
+    @apply bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold rounded-xl transition-colors duration-200 active:scale-[0.98];
   }
 
   /* Dropdown Menus (Radix/Shadcn style) */

@@ -1,9 +1,9 @@
 'use client';
 
 import { ReactNode } from 'react';
-import Link from 'next/link';
-import { User, Building, Shield, SlidersHorizontal } from 'lucide-react';
+import { User, Building, Shield, SlidersHorizontal, ChevronDown } from 'lucide-react';
 import { SidebarNav } from './components/sidebar-nav';
+import { useRouter, usePathname } from 'next/navigation';
 
 const sidebarNavItems = [
   {
@@ -29,6 +29,9 @@ const sidebarNavItems = [
 ];
 
 export default function SettingsLayout({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname();
+
   return (
     <div className="space-y-6 pb-16 md:block animate-in fade-in duration-500">
       <div className="space-y-0.5">
@@ -38,8 +41,28 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
         </p>
       </div>
       <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
-        <aside className="-mx-4 lg:mx-0 lg:w-1/5 overflow-x-auto scrollbar-hide pb-2">
-          <div className="min-w-max px-4 lg:px-0 lg:min-w-full">
+        <aside className="lg:w-1/5">
+          {/* Mobile Navigation Dropdown */}
+          <div className="block lg:hidden mb-6 relative">
+            <select
+              className="w-full bg-white dark:bg-slate-950 border border-border text-slate-900 dark:text-white text-sm font-semibold rounded-xl px-4 py-3 pr-10 appearance-none focus:outline-none focus:ring-2 focus:ring-brand-blue relative z-10"
+              onChange={(e) => {
+                router.push(e.target.value);
+              }}
+              value={pathname}
+            >
+              {sidebarNavItems.map((item) => (
+                <option key={item.href} value={item.href}>
+                  {item.title}
+                </option>
+              ))}
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none z-20">
+              <ChevronDown className="w-5 h-5 text-slate-400" />
+            </div>
+          </div>
+          {/* Desktop Sidebar Navigation */}
+          <div className="hidden lg:block">
             <SidebarNav items={sidebarNavItems} />
           </div>
         </aside>

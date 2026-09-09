@@ -34,10 +34,7 @@ export default function DashboardPage() {
           <p className="mt-3 text-slate-500 dark:text-slate-400">{(error as any)?.message || 'Please refresh the page or try again later.'}</p>
         </div>
       ) : !isLoading && data?.overview.transactionCount === 0 ? (
-        <div className="bg-card border border-border rounded-3xl p-8 sm:p-12 shadow-sm relative overflow-hidden">
-          {/* Subtle accent glow - only visible in dark mode or very subtle in light */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 dark:bg-primary/20 rounded-full -mr-24 -mt-24 blur-[100px] pointer-events-none"></div>
-          
+        <div className="bg-card border border-border rounded-3xl p-8 sm:p-12 relative overflow-hidden">
           <div className="relative z-10 max-w-2xl">
             <h3 className="text-2xl sm:text-4xl font-black text-foreground tracking-tight mb-4">Welcome to Fintriq</h3>
             <p className="text-muted-foreground text-lg mb-8 leading-relaxed">Your financial clarity journey begins here. It looks like you haven't added any transactions yet. Let's get your dashboard set up.</p>
