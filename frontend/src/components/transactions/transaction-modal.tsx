@@ -10,6 +10,7 @@ import { useCategories, useCreateCategory } from '@/hooks/use-categories';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Calculator } from './calculator';
+import { format } from 'date-fns';
 
 interface TransactionModalProps {
   isOpen: boolean;
