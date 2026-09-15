@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { User as UserIcon, Building, Shield, Sliders, LogOut, Tags } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { Avatar } from '@/components/ui/avatar';
 
 export function Header() {
   const pathname = usePathname();
@@ -59,14 +60,14 @@ export function Header() {
           
           <button 
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-tr from-brand-blue to-emerald-400 flex items-center justify-center text-white font-bold shadow-md ring-2 ring-background hover:ring-brand-blue/50 transition-all overflow-hidden focus:outline-none"
+            className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-white font-bold shadow-md ring-2 ring-background hover:ring-brand-blue/50 transition-all overflow-hidden focus:outline-none"
           >
-            {user?.profileImageUrl ? (
-              <img src={user.profileImageUrl} alt="Profile" className="w-full h-full object-cover" />
-            ) : user?.name ? (
-              user.name.charAt(0).toUpperCase()
+            {user ? (
+              <Avatar user={user} className="w-full h-full rounded-full" fallbackClassName="w-full h-full rounded-full" />
             ) : (
-              user?.email.charAt(0).toUpperCase() || <UserIcon size={18} />
+              <div className="w-full h-full rounded-full flex items-center justify-center bg-brand-blue">
+                <UserIcon size={18} />
+              </div>
             )}
           </button>
 

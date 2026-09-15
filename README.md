@@ -79,7 +79,7 @@ The core problem Fintriq solves is enabling small-to-medium teams to collaborati
 | **Backend** | Express.js, TypeScript, Prisma ORM, Zod, JWT, Jest |
 | **Database** | PostgreSQL |
 | **Authentication** | HttpOnly refresh cookies, RBAC, Helmet, rate limiting, request validation |
-| **File Storage** | Cloudinary (Profile Pictures) |
+| **File Storage** | Supabase Storage (Profile Pictures) |
 | **Email Service** | Brevo (Transactional Emails) |
 | **Deployment** | Vercel (Frontend), Render (Backend), Supabase (Database) |
 
@@ -111,9 +111,6 @@ PORT=5000
 FRONTEND_URL=http://localhost:3000
 BREVO_API_KEY=email_brevo_api_key
 EMAIL_FROM=email_to_be_shown_in_header
-CLOUDINARY_CLOUD_NAME=cloudinary_cloud_name
-CLOUDINARY_API_KEY=cloudinary_api_key
-CLOUDINARY_API_SECRET=cloudinary_api_secret
 ```
 - API runs on `http://localhost:5000`
 

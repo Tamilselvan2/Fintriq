@@ -19,7 +19,7 @@ describe('AuthService', () => {
 
     it('should throw AppError if password does not match', async () => {
       prismaMock.user.findUnique.mockResolvedValue({
-        id: '1', email: 'test@example.com', passwordHash: 'hashed', orgId: 'org1', role: Role.USER, createdAt: new Date(), updatedAt: new Date(), name: null, profileImageUrl: null, profileImagePublicId: null
+        id: '1', email: 'test@example.com', passwordHash: 'hashed', orgId: 'org1', role: Role.USER, createdAt: new Date(), updatedAt: new Date(), name: null, profileImageUrl: null
       });
       jest.spyOn(bcrypt, 'compare').mockImplementation(async () => false);
       await expect(authService.login('test@example.com', 'wrongpassword')).rejects.toThrow(AppError);
@@ -27,7 +27,7 @@ describe('AuthService', () => {
 
     it('should return tokens and user safely on success', async () => {
       prismaMock.user.findUnique.mockResolvedValue({
-        id: '1', email: 'test@example.com', passwordHash: 'hashed', orgId: 'org1', role: Role.USER, createdAt: new Date(), updatedAt: new Date(), name: null, profileImageUrl: null, profileImagePublicId: null
+        id: '1', email: 'test@example.com', passwordHash: 'hashed', orgId: 'org1', role: Role.USER, createdAt: new Date(), updatedAt: new Date(), name: null, profileImageUrl: null
       });
       jest.spyOn(bcrypt, 'compare').mockImplementation(async () => true);
       prismaMock.refreshToken.create.mockResolvedValue({} as any);
@@ -50,7 +50,7 @@ describe('AuthService', () => {
       prismaMock.user.findUnique.mockResolvedValue(null);
       
       const mockOrg = { id: 'org1', name: 'John', createdAt: new Date(), updatedAt: new Date() };
-      const mockUser = { id: '1', email: 'test@example.com', passwordHash: 'hashed', orgId: 'org1', role: Role.ADMIN, createdAt: new Date(), updatedAt: new Date(), name: 'John', profileImageUrl: null, profileImagePublicId: null };
+      const mockUser = { id: '1', email: 'test@example.com', passwordHash: 'hashed', orgId: 'org1', role: Role.ADMIN, createdAt: new Date(), updatedAt: new Date(), name: 'John', profileImageUrl: null };
       
       prismaMock.$transaction.mockImplementation(async (callback) => {
         return { user: mockUser, org: mockOrg };

@@ -101,7 +101,7 @@ sequenceDiagram
     participant U as User
     participant F as Frontend
     participant B as Backend
-    participant C as File Storage (Cloudinary)
+    participant C as File Storage (Supabase)
     participant DB as PostgreSQL
     
     U->>F: Uploads image file
@@ -193,7 +193,7 @@ graph TD
     subgraph Infrastructure
         ExpressAPI -->|Prisma Connection| DB[(Supabase PostgreSQL)]
         ExpressAPI -->|SMTP| Email[Brevo Email Service]
-        ExpressAPI -->|API| Storage[Cloudinary Image Storage]
+        ExpressAPI -->|API| Storage[Supabase Private Storage]
     end
 ```
 

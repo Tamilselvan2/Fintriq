@@ -60,5 +60,10 @@ export const authApi = {
       },
     });
     return res.data.data.user;
+  },
+
+  getAvatarUrl: async (userId: string) => {
+    const res = await api.get<ApiResponse<{ url: string }>>(`/auth/profile-picture/${userId}`);
+    return res.data.data.url;
   }
 };

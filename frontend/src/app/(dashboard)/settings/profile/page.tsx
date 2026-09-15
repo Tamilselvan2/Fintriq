@@ -7,6 +7,7 @@ import { authApi } from '@/lib/auth-api';
 import { toast } from 'sonner';
 import { ProfileSkeleton } from '@/components/skeletons/profile-skeleton';
 import { Spinner } from '@/components/ui/spinner';
+import { Avatar } from '@/components/ui/avatar';
 
 export default function ProfileSettingsPage() {
   const { user, updateUser } = useAuth();
@@ -92,12 +93,8 @@ export default function ProfileSettingsPage() {
           {/* Avatar Section */}
           <div className="flex flex-col sm:flex-row items-center gap-6">
             <div className="relative group">
-              <div className="w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-black shadow-sm ring-1 ring-border transition-all overflow-hidden bg-brand-blue">
-                {user.profileImageUrl ? (
-                  <img src={user.profileImageUrl} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()
-                )}
+              <div className="w-24 h-24 rounded-full flex items-center justify-center shadow-sm ring-1 ring-border transition-all overflow-hidden">
+                <Avatar user={user} className="w-full h-full text-3xl font-black" fallbackClassName="w-full h-full text-3xl font-black" />
               </div>
               
               <button 
