@@ -17,7 +17,7 @@ export function useOrganization() {
 export function useUpdateOrganization() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: { name: string }) => {
+    mutationFn: async (data: { name?: string; currency?: string }) => {
       const res = await api.patch('/organizations/current', data);
       return res.data;
     },

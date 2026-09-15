@@ -137,6 +137,7 @@ export class AuthService {
           transformation: [{ width: 300, height: 300, crop: 'fill' }],
           format: 'webp',
           type: 'authenticated',
+          access_mode: 'authenticated',
         },
         async (error, result) => {
           if (error) {
