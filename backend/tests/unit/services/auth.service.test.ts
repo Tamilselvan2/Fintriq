@@ -4,6 +4,18 @@ import bcrypt from 'bcryptjs';
 import { AppError } from '../../../src/utils/errors';
 import { Role } from '@prisma/client';
 
+jest.mock('../../../src/config/supabase', () => ({
+  supabase: {
+    storage: {
+      from: jest.fn().mockReturnValue({
+        upload: jest.fn(),
+        createSignedUrl: jest.fn(),
+        remove: jest.fn()
+      })
+    }
+  }
+}));
+
 describe('AuthService', () => {
   let authService: AuthService;
 
