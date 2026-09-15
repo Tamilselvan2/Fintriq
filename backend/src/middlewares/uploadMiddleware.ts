@@ -1,7 +1,7 @@
 import multer from 'multer';
 import { AppError } from '../utils/errors';
 
-// Use memory storage so we can buffer the file to Cloudinary
+// Use memory storage so we can buffer the file for processing and Supabase upload
 const storage = multer.memoryStorage();
 
 // File filter for images only

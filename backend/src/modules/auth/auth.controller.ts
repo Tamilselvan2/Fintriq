@@ -197,4 +197,19 @@ export class AuthController {
       next(error);
     }
   };
+  getAvatarUrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const requestingUserId = req.user!.userId;
+      const targetUserId = req.params.userId as string;
+      
+      const url = await this.authService.getAvatarUrl(requestingUserId, targetUserId);
+      
+      res.status(200).json({
+        success: true,
+        data: { url },
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 }

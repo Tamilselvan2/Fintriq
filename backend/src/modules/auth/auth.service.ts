@@ -1,13 +1,15 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import cloudinary from '../../config/cloudinary';
 import { AuthRepository } from './auth.repository';
 import { AppError } from '../../utils/errors';
 import { generateAccessToken, generateRefreshToken, hashToken, JwtPayload, verifyRefreshToken } from '../../utils/jwt';
 import { sendResetPasswordEmail } from '../../utils/email';
 import { AuditService, AuditActions } from '../audit/audit.service';
+import sharp from 'sharp';
+import { supabase } from '../../config/supabase';
 
 const auditService = new AuditService();
+
 
 export class AuthService {
   private repository = new AuthRepository();
@@ -120,58 +122,88 @@ export class AuthService {
     const user = await this.repository.findUserById(userId);
     if (!user) throw new AppError(404, 'User not found');
 
-    // If the user already has a profile image, delete it from Cloudinary
-    if (user.profileImagePublicId) {
-      try {
-        await cloudinary.uploader.destroy(user.profileImagePublicId);
-      } catch (error) {
-        console.error('Failed to delete old profile picture:', error);
+    try {
+      // Validate and process the image with Sharp
+      const processedImageBuffer = await sharp(file.buffer)
+        .resize({ width: 256, height: 256, fit: 'cover' })
+        .webp({ quality: 80 })
+        .toBuffer();
+
+      const uniqueId = crypto.randomUUID();
+      const storagePath = `profiles/${user.orgId}/${userId}/avatar-${uniqueId}.webp`;
+
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('profile-images')
+        .upload(storagePath, processedImageBuffer, {
+          contentType: 'image/webp',
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error('Supabase upload error:', uploadError);
+        throw new AppError(500, 'Failed to upload image to storage');
       }
-    }
 
-    // Upload new image to Cloudinary via stream
-    return new Promise((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        {
-          folder: 'fintriq/profile-pictures',
-          transformation: [{ width: 300, height: 300, crop: 'fill' }],
-          format: 'webp',
-          type: 'authenticated',
-        },
-        async (error, result) => {
-          if (error) {
-            return reject(new AppError(500, 'Failed to upload image to Cloudinary'));
-          }
+      // If the user previously had a Supabase image (doesn't start with http), delete it
+      if (user.profileImageUrl && !user.profileImageUrl.startsWith('http')) {
+        await supabase.storage.from('profile-images').remove([user.profileImageUrl]).catch(e => {
+          console.error('Failed to delete old Supabase profile picture:', e);
+        });
+      }
 
-          if (!result) {
-            return reject(new AppError(500, 'No result from Cloudinary'));
-          }
-
-          try {
-            const updatedUser = await this.repository.updateProfileImage(
-              userId,
-              result.secure_url,
-              result.public_id
-            );
-            const { passwordHash: _, ...safeUser } = updatedUser;
-            resolve(safeUser);
-          } catch (dbError) {
-            reject(new AppError(500, 'Failed to update user profile in database'));
-          }
-        }
+      // Update the database
+      const updatedUser = await this.repository.updateProfileImage(
+        userId,
+        storagePath
       );
 
-      // Pass the file buffer to the stream
-      uploadStream.end(file.buffer);
-    });
+      const { passwordHash: _, ...safeUser } = updatedUser;
+      
+      return safeUser;
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      console.error('Image processing or upload error:', error);
+      throw new AppError(500, 'Failed to process or upload image');
+    }
   }
 
-  // Restricted to name only per recent auth stabilization changes
   async updateProfile(userId: string, name: string) {
     const updatedUser = await this.repository.updateProfileName(userId, name);
     const { passwordHash: _, ...safeUser } = updatedUser;
     return safeUser;
   }
+  async getAvatarUrl(requestingUserId: string, targetUserId: string) {
+    const requestingUser = await this.repository.findUserById(requestingUserId);
+    if (!requestingUser) throw new AppError(401, 'Unauthorized');
+
+    const targetUser = await this.repository.findUserById(targetUserId);
+    if (!targetUser) throw new AppError(404, 'User not found');
+
+    if (requestingUser.orgId !== targetUser.orgId) {
+      throw new AppError(403, 'Forbidden');
+    }
+
+    const path = targetUser.profileImageUrl;
+    if (!path) throw new AppError(404, 'Profile image not found');
+
+    if (path.startsWith('http')) return path;
+
+    try {
+      // Generate 5 minute signed URL
+      const { data, error } = await supabase.storage.from('profile-images').createSignedUrl(path, 300);
+      if (error || !data) {
+        console.error('Failed to generate signed URL for profile image:', error);
+        throw new AppError(500, 'Failed to generate image URL');
+      }
+      return data.signedUrl;
+    } catch (err) {
+      console.error('Error generating signed URL:', err);
+      throw new AppError(500, 'Failed to generate image URL');
+    }
+  }
+
 
   async changePassword(userId: string, currentPassword: string, newPassword: string) {
     const user = await this.repository.findUserById(userId);

@@ -50,7 +50,6 @@ model User {
   updatedAt           DateTime       @updatedAt
   name                String?
   profileImageUrl     String?
-  profileImagePublicId String?
   auditLogs           AuditLog[]
   refreshTokens       RefreshToken[]
   passwordResetTokens PasswordResetToken[]

@@ -26,6 +26,7 @@ router.get('/me', authenticate, authController.getMe);
 router.patch('/profile', authenticate, validateRequest(updateProfileSchema), authController.updateProfile);
 router.patch('/password', authenticate, validateRequest(changePasswordSchema), authController.changePassword);
 router.post('/profile-picture', authenticate, uploadProfileImage.single('image'), authController.uploadProfilePicture);
+router.get('/profile-picture/:userId', authenticate, authController.getAvatarUrl);
 
 router.post('/forgot-password', authLimiter, validateRequest(forgotPasswordSchema), authController.forgotPassword);
 router.post('/reset-password', authLimiter, validateRequest(resetPasswordSchema), authController.resetPassword);
