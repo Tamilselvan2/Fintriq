@@ -106,12 +106,6 @@ export default function PurchasePresetsPage() {
                 <div className="mt-8 space-y-4 border-t border-border pt-6">
                   <div className="flex justify-between items-center">
                     <h4 className="font-bold text-slate-800 dark:text-slate-200">Preset Items</h4>
-                    <button
-                      onClick={handleAddItem}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-blue/10 text-brand-blue hover:bg-brand-blue/20 transition-colors rounded-lg text-xs font-bold"
-                    >
-                      <Plus size={14} /> Add Item
-                    </button>
                   </div>
 
                   {presetsLoading ? (
@@ -166,7 +160,16 @@ export default function PurchasePresetsPage() {
                     </div>
                   )}
 
-                  <div className="pt-4 flex justify-end">
+                  <div className="pt-2">
+                    <button
+                      onClick={handleAddItem}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 bg-brand-blue/10 text-brand-blue hover:bg-brand-blue/20 transition-colors rounded-lg text-sm font-bold"
+                    >
+                      <Plus size={16} /> Add Item
+                    </button>
+                  </div>
+
+                  <div className="pt-4 flex justify-end border-t border-border mt-4">
                     <button
                       onClick={handleSave}
                       disabled={updatePresetsMutation.isPending || presetsLoading}
