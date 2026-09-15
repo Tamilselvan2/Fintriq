@@ -9,10 +9,10 @@ export class OrganizationRepository {
     });
   }
 
-  async updateOrganization(id: string, name: string) {
+  async updateOrganization(id: string, data: { name?: string; currency?: string }) {
     return prisma.organization.update({
       where: { id },
-      data: { name },
+      data,
       include: { _count: { select: { users: true } } }
     });
   }

@@ -15,8 +15,8 @@ export class OrganizationController {
 
   updateOrganization = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { name } = req.body;
-      const org = await this.service.updateOrganization(req.user!.orgId, name);
+      const { name, currency } = req.body;
+      const org = await this.service.updateOrganization(req.user!.orgId, { name, currency });
       res.json({ success: true, data: org, message: 'Organization updated successfully' });
     } catch (error) {
       next(error);

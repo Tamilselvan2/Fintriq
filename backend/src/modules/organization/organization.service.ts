@@ -12,8 +12,8 @@ export class OrganizationService {
     return org;
   }
 
-  async updateOrganization(orgId: string, name: string) {
-    const org = await this.repository.updateOrganization(orgId, name);
+  async updateOrganization(orgId: string, data: { name?: string; currency?: string }) {
+    const org = await this.repository.updateOrganization(orgId, data);
     if (!org) throw new AppError(404, 'Organization not found');
     return org;
   }

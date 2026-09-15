@@ -1,6 +1,13 @@
 'use client';
 
+import { useAuth } from '@/hooks/use-auth';
+import { useOrganization, useUpdateOrganization } from '@/hooks/use-organization';
+
 export default function PreferencesPage() {
+  const { isAdmin } = useAuth();
+  const { data: org } = useOrganization();
+  const updateOrgMutation = useUpdateOrganization();
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div>
@@ -16,25 +23,33 @@ export default function PreferencesPage() {
             <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-4">Regional & Density</h4>
             
             <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-border bg-slate-50 dark:bg-slate-900/50">
-                <div>
-                  <p className="text-sm font-bold text-slate-900 dark:text-white">Currency Format</p>
-                  <p className="text-xs text-slate-500 mt-1">Select your preferred currency symbol and format.</p>
+              {isAdmin && (
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-border bg-slate-50 dark:bg-slate-900/50">
+                  <div>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">Organization Currency</p>
+                    <p className="text-xs text-slate-500 mt-1">Set the currency symbol used across the organization.</p>
+                  </div>
+                  <select 
+                    value={org?.currency || 'INR'}
+                    onChange={(e) => {
+                      const newCurrency = e.target.value;
+                      updateOrgMutation.mutate({ name: org?.name || '', currency: newCurrency }, {
+                        onSuccess: () => {
+                          localStorage.setItem('fintriq_currency', newCurrency);
+                          window.location.reload();
+                        }
+                      });
+                    }}
+                    disabled={updateOrgMutation.isPending}
+                    className="px-3 py-2 bg-white dark:bg-slate-800 border border-border rounded-lg text-sm font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-blue/50 outline-none cursor-pointer disabled:opacity-50"
+                  >
+                    <option value="USD">USD ($)</option>
+                    <option value="INR">INR (₹)</option>
+                    <option value="EUR">EUR (€)</option>
+                    <option value="GBP">GBP (£)</option>
+                  </select>
                 </div>
-                <select 
-                  value={typeof window !== 'undefined' ? localStorage.getItem('fintriq_currency') || 'USD' : 'USD'}
-                  onChange={(e) => {
-                    localStorage.setItem('fintriq_currency', e.target.value);
-                    window.location.reload(); // Reload to apply formatting globally
-                  }}
-                  className="px-3 py-2 bg-white dark:bg-slate-800 border border-border rounded-lg text-sm font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-blue/50 outline-none cursor-pointer"
-                >
-                  <option value="USD">USD ($)</option>
-                  <option value="INR">INR (₹)</option>
-                  <option value="EUR">EUR (€)</option>
-                  <option value="GBP">GBP (£)</option>
-                </select>
-              </div>
+              )}
 
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-border bg-slate-50 dark:bg-slate-900/50">
                 <div>

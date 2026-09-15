@@ -4,11 +4,13 @@ import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
 import { BottomNav } from '@/components/layout/bottom-nav';
 import { useAuth } from '@/hooks/use-auth';
+import { useOrganization } from '@/hooks/use-organization';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
+  const { data: org } = useOrganization();
   const router = useRouter();
 
   // Client-side protection fallback
@@ -17,6 +19,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       router.push('/login');
     }
   }, [isLoading, isAuthenticated, router]);
+
+  useEffect(() => {
+    if (org?.currency) {
+      localStorage.setItem('fintriq_currency', org.currency);
+    }
+  }, [org?.currency]);
 
   if (isLoading || !isAuthenticated) return null; // Let loading.tsx handle UI while authenticating
 

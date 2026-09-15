@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { Calculator } from './calculator';
 import { Minus, Plus } from 'lucide-react';
 import { format } from 'date-fns';
+import { formatCurrency } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
 interface TransactionModalProps {
@@ -204,7 +205,7 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Amount ($)</label>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Amount</label>
               <div className="relative">
                 <input
                   type="number"
@@ -293,7 +294,7 @@ export function TransactionModal({ isOpen, onOpenChange, transaction }: Transact
                     <div key={item.id} className="flex items-center justify-between bg-white dark:bg-slate-950 p-2.5 rounded-lg border border-border">
                       <div className="flex flex-col">
                         <span className="text-sm font-bold text-slate-900 dark:text-white">{item.name}</span>
-                        <span className="text-xs font-semibold text-slate-500">${Number(item.price).toFixed(2)}</span>
+                        <span className="text-xs font-semibold text-slate-500">{formatCurrency(Number(item.price))}</span>
                       </div>
                       <div className="flex items-center gap-3">
                         <button 

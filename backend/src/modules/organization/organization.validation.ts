@@ -17,5 +17,7 @@ export const memberIdParamsSchema = z.object({
 export const updateOrganizationSchema = z.object({
   name: z
     .string()
-    .min(2, 'Organization name must be at least 2 characters'),
+    .min(2, 'Organization name must be at least 2 characters')
+    .optional(),
+  currency: z.string().optional(),
 });
